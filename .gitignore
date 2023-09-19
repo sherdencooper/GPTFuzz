@@ -1,0 +1,6 @@
+./run.log
+test.ipynb
+/checkpoints/
+checkpoints/
+*.pyc
+*.log
