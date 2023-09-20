@@ -100,6 +100,6 @@ if __name__ == "__main__":
     args_target.temperature = 0.01   #some models need to have strict positive temperature
     MODEL_TARGET, TOK_TARGET = prepare_model_and_tok(args_target)
     questions = pd.read_csv('datasets/questions/question_list.csv')['text'].tolist()[:20]   #use 20 questions to optimize the fuzzing process
-    initial_seed = pd.read_excel('/home/jys3649/projects/jailbreak/datasets/prompts/jailbreak-prompt.xlsx')['text'].tolist()
+    initial_seed = pd.read_excel('./datasets/prompts/jailbreak-prompt.xlsx')['text'].tolist()
     print(args)
     main(args, args_target, MODEL, TOK, MODEL_TARGET, TOK_TARGET, questions, initial_seed)

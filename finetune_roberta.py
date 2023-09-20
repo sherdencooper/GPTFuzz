@@ -118,10 +118,10 @@ class DataTrainingArguments:
         },
     )
     train_file: Optional[str] = field(
-        default='/home/jys3649/projects/jailbreak_LLM/dataset/train.csv', metadata={"help": "A csv or a json file containing the training data."}
+        default='./datasets/responses_labeled/train.csv', metadata={"help": "A csv or a json file containing the training data."}
     )
     validation_file: Optional[str] = field(
-        default='/home/jys3649/projects/jailbreak_LLM/dataset/evaluate.csv', metadata={"help": "A csv or a json file containing the validation data."}
+        default='./datasets/responses_labeled/evaluate.csv', metadata={"help": "A csv or a json file containing the validation data."}
     )
     test_file: Optional[str] = field(default=None, metadata={"help": "A csv or a json file containing the test data."})
 

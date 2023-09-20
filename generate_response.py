@@ -13,7 +13,7 @@ import torch
 from fastchat.model import add_model_args
 from llm_utils.creat_model import prepare_model_and_tok
 from llm_utils.model_inference import LLM_response
-from bardapi import BardCookies
+
 
 def replace_template(test_question, prompt):
     if '[INSERT PROMPT HERE]' in prompt:
@@ -66,9 +66,8 @@ def main(args, MODEL, TOK, initial_seed, questions):
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
     argparse.add_argument('--index', type=int, default=10, help='task id')
-    # argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    argparse.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
-    argparse.add_argument('--model_path', type=str, default='gpt-3.5-turbo-0301', help='openai model or open-sourced LLMs')
+    argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
+    argparse.add_argument('--model_path', type=str, default='gpt-3.5-turbo', help='openai model or open-sourced LLMs')
     argparse.add_argument('--num_workers', type=int, default=10, help='number of workers')
     argparse.add_argument("--temperature", type=float, default=0.01)                     # some models like ChatGLM do not support zero temperature
     argparse.add_argument("--repetition_penalty", type=float, default=1.0)

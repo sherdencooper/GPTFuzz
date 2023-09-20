@@ -66,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--mode", type=str, default='multi-single')
-    parser.add_argument("--prompt_path", type=str, default='/home/jys3649/projects/jailbreak/datasets/prompts_generated/multi_single/multi_single_Llama-2-7b-chat-hf_UCB.csv')
+    parser.add_argument("--prompt_path", type=str, default='./datasets/prompts_generated/multi_single/multi_single_Llama-2-7b-chat-hf.csv')
     add_model_args(parser)
     args = parser.parse_args()
     args.num_gpus = 1

@@ -116,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("--repetition_penalty", type=float, default=1.0)
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--max-new-tokens", type=int, default=512)
-    parser.add_argument("--prompt_path", type=str, default='/home/jys3649/projects/jailbreak/datasets/prompts_generated/multi_multi/multi_multi_chatgpt_vicuna_llama2.csv')
+    parser.add_argument("--prompt_path", type=str, default='./datasets/prompts_generated/multi_multi/multi_multi_chatgpt_vicuna_llama2.csv')
     parser.add_argument("--overwrite", type=bool, default=True) 
     # baseline shoule be one of GCG, fuzzer, no_attack, human_prompt
     parser.add_argument("--baseline", choices=['GCG', 'fuzzer', 'no_attack', 'human_prompt', 'here_is'], default='GCG')

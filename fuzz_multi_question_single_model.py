@@ -80,8 +80,7 @@ def main(args, args_target, MODEL, TOK, MODEL_TARGET, TOK_TARGET, questions, ini
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
-    # parse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    parser.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
+    parser.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo', help='openai model or open-sourced LLMs')
     parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf', help='The target model, openai model or open-sourced LLMs')
     parser.add_argument('--max_query', type=int, default=10000, help='The maximum number of queries')
@@ -103,6 +102,6 @@ if __name__ == "__main__":
     args_target.temperature = 0.01   #some models need to have strict positive temperature
     MODEL_TARGET, TOK_TARGET = prepare_model_and_tok(args_target)
     questions = pd.read_csv('datasets/questions/question_list.csv')['text'].tolist()[:20]   #use 20 questions to optimize the fuzzing process
-    initial_seed = pd.read_excel('/home/jys3649/projects/jailbreak/datasets/prompts/jailbreak-prompt.xlsx')['text'].tolist()
+    initial_seed = pd.read_excel('./datasets/prompts/jailbreak-prompt.xlsx')['text'].tolist()
     print(args)
     main(args, args_target, MODEL, TOK, MODEL_TARGET, TOK_TARGET, questions, initial_seed)
