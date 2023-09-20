@@ -21,45 +21,22 @@ def main(args, MODEL, TOK, questions_train, questions_test, attack_prompt):
     top_5_asr_index = np.argsort(train_asr)[::-1][:5]
     top_5_prompts = prompts[top_5_asr_index]
 
-    one_shot_success_num = 0
-    five_shot_success_num = 0
     for question in tqdm(questions_test):
         for index, prompt in enumerate(top_5_prompts):
             replaced_prompt = replace_template(question, prompt)
             response = execute_query(args, replaced_prompt, MODEL, TOK)
             print(response)
-            predictions = predict(response).detach().cpu().numpy()
-            print("The prediction is {}".format(predictions[0]))
-            if predictions[0] == 1:
-                if index == 0:
-                    one_shot_success_num += 1
-                five_shot_success_num += 1
-                break
-    print("test one-shot success rate is {}".format(one_shot_success_num/len(questions_test)))
-    print("test five-shot success rate is {}".format(five_shot_success_num/len(questions_test)))
 
-    one_shot_success_num = 0
-    five_shot_success_num = 0
     for question in tqdm(questions_train):
         for index, prompt in enumerate(top_5_prompts):
             replaced_prompt = replace_template(question, prompt)
             response = execute_query(args, replaced_prompt, MODEL, TOK)
             print(response)
-            predictions = predict(response).detach().cpu().numpy()
-            print("The prediction is {}".format(predictions[0]))
-            if predictions[0] == 1:
-                if index == 0:
-                    one_shot_success_num += 1
-                five_shot_success_num += 1
-                break
-    print("train one-shot success rate is {}".format(one_shot_success_num/len(questions_train)))
-    print("train five-shot success rate is {}".format(five_shot_success_num/len(questions_train)))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
-    # parse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    parser.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
+    parser.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
     parser.add_argument('--model_path', type=str, default='meta-llama/Llama-2-7b-chat-hf', help='openai model or open-sourced LLMs')
     parser.add_argument("--temperature", type=float, default=0.01)          
     parser.add_argument("--repetition_penalty", type=float, default=1.0)

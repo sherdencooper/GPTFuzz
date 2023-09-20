@@ -339,7 +339,8 @@ def openai_request(prompt, temperature=0, n=1):
                         n = n,
                     )
             break
-        except:
+        except Exception as e:
+            print(e)
             time.sleep(5)
             continue
     if response == "Sorry, I cannot help with this request. The system is busy now.":

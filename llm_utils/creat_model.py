@@ -33,7 +33,7 @@ def create_model_and_tok(args, model_path):
             exit()
         else:
             # openai.api_key = args.openai_key   # just for convenience
-            openai.api_key = "sk-xxxxxxxxxxxxx"
+            openai.api_key = args.openai_key
             MODEL = model_path
             TOK = None
     
