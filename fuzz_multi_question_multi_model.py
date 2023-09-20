@@ -78,7 +78,7 @@ def main(args, args_target, MODEL, TOK, MODEL_TARGET, TOK_TARGET, questions, ini
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
     # parse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    parser.add_argument('--openai_key', type=str, default='9QPX0ku0AXsx5xpOqEq1T3BlbkFJue3xcfzinPL9dD9Sge1R', help='OpenAI key')
+    parser.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo', help='openai model or open-sourced LLMs')
     parser.add_argument('--target_model', type=list, default=['meta-llama/Llama-2-7b-chat-hf', 'gpt-3.5-turbo', 'lmsys/vicuna-7b-v1.3'], help='The target model, openai model or open-sourced LLMs')
     parser.add_argument('--max_query', type=int, default=30000, help='The maximum number of queries')

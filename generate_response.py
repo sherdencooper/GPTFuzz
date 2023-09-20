@@ -67,7 +67,7 @@ if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
     argparse.add_argument('--index', type=int, default=10, help='task id')
     # argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    argparse.add_argument('--openai_key', type=str, default='9QPX0ku0AXsx5xpOqEq1T3BlbkFJue3xcfzinPL9dD9Sge1R', help='OpenAI key')
+    argparse.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
     argparse.add_argument('--model_path', type=str, default='gpt-3.5-turbo-0301', help='openai model or open-sourced LLMs')
     argparse.add_argument('--num_workers', type=int, default=10, help='number of workers')
     argparse.add_argument("--temperature", type=float, default=0.01)                     # some models like ChatGLM do not support zero temperature

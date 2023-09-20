@@ -59,7 +59,7 @@ def main(args, MODEL, TOK, questions_train, questions_test, attack_prompt):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
     # parse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    parser.add_argument('--openai_key', type=str, default='9QPX0ku0AXsx5xpOqEq1T3BlbkFJue3xcfzinPL9dD9Sge1R', help='OpenAI key')
+    parser.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
     parser.add_argument('--model_path', type=str, default='meta-llama/Llama-2-7b-chat-hf', help='openai model or open-sourced LLMs')
     parser.add_argument("--temperature", type=float, default=0.01)          
     parser.add_argument("--repetition_penalty", type=float, default=1.0)

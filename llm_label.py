@@ -159,7 +159,7 @@ def main(args, MODEL, TOK, responses, label, questions, questions_index):
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
     # argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    argparse.add_argument('--openai_key', type=str, default='9QPX0ku0AXsx5xpOqEq1T3BlbkFJue3xcfzinPL9dD9Sge1R', help='OpenAI key')
+    argparse.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
     argparse.add_argument('--model_path', type=str, default='rule_match', help='openai model or open-sourced LLMs')
     argparse.add_argument("--temperature", type=float, default=0.01)                     # some models like ChatGLM do not support zero temperature
     argparse.add_argument("--repetition_penalty", type=float, default=1.0)
