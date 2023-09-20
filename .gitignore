@@ -4,3 +4,5 @@ test.ipynb
 checkpoints/
 *.pyc
 *.log
+__pycache__/
+.vscode/
