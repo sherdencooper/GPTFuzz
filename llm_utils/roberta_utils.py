@@ -4,7 +4,7 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 # Load model and tokenizer
 print("Loading RoBERTa Checkpoint...")
-ckpt_path = './checkpoints/roberta_checkpoint'
+ckpt_path = 'hubert233/GPTFuzz'
 model = RobertaForSequenceClassification.from_pretrained(ckpt_path).to('cuda')
 tokenizer = RobertaTokenizer.from_pretrained(ckpt_path)
 print("Loading Done!")
