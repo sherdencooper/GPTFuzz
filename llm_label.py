@@ -81,7 +81,7 @@ def llm_label_execute(args, MODEL, TOK, response, questions, questions_index):
 
     elif MODEL == 'moderation':
         judge = openai.Moderation.create(
-            input=questions[questions_index]
+            input=response
         )
         output = judge["results"][0]
         result = 1 if output["flagged"] else 0
@@ -159,7 +159,7 @@ def main(args, MODEL, TOK, responses, label, questions, questions_index):
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
     argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    argparse.add_argument('--model_path', type=str, default='moderation', help='openai model or open-sourced LLMs')
+    argparse.add_argument('--model_path', choices=['gpt-3.5-turbo','gpt-4','rule_match','roberta','moderation'], default='gpt-3.5-turbo', help='openai model or open-sourced LLMs')
     argparse.add_argument("--temperature", type=float, default=0.01)                     # some models like ChatGLM do not support zero temperature
     argparse.add_argument("--repetition_penalty", type=float, default=1.0)
     argparse.add_argument("--max-new-tokens", type=int, default=512)
