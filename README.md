@@ -33,7 +33,7 @@ For the responses we got by querying Vicuna-7B, ChatGPT and Llama-2-7B-chat, we 
 
 ## Models
 
-Our judgement model a finetuned RoBERTa-large model and the training code is in `finetune_roberta.py`, and the training/evaluating data is stored in `datasets/responses_labeled`. The model we used is hosted on [Hugging Face](https://huggingface.co/hubert233/GPTFuzz). When running fuzzing experiments, the model will be automatically downloaded and cached for the first time. If you would like to download the model manually, you can run the following code:
+Our judgement model is a finetuned RoBERTa-large model and the training code is in `finetune_roberta.py`, and the training/evaluating data is stored in `datasets/responses_labeled`. The model we used is hosted on [Hugging Face](https://huggingface.co/hubert233/GPTFuzz). When running fuzzing experiments, the model will be automatically downloaded and cached for the first time. If you would like to download the model manually, you can run the following code:
 
 ```python
 from transformers import RobertaForSequenceClassification, RobertaTokenizer

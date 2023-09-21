@@ -64,7 +64,7 @@ def convert_llm_answer_to_label(result):
 def llm_label_execute(args, MODEL, TOK, response, questions, questions_index):
     prompt = Prompts_message()
     if type(MODEL)==str and 'gpt' in MODEL:
-        if not args.with_label:
+        if not args.with_question:
             msg = prompt.llm_label_without_question + response
         else:
             msg = prompt.llm_label_with_question.replace('[question]',questions[questions_index]) + response
@@ -81,14 +81,14 @@ def llm_label_execute(args, MODEL, TOK, response, questions, questions_index):
 
     elif MODEL == 'moderation':
         judge = openai.Moderation.create(
-            input=questions[12]
+            input=questions[questions_index]
         )
         output = judge["results"][0]
         result = 1 if output["flagged"] else 0
         return result, result
     
     else:
-        if not args.with_label:
+        if not args.with_question:
             msg = prompt.llm_label_without_question + response
         else:
             msg = prompt.llm_label_with_question.replace('[question]',questions[questions_index]) + response
@@ -158,14 +158,13 @@ def main(args, MODEL, TOK, responses, label, questions, questions_index):
 
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser()
-    # argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
-    argparse.add_argument('--openai_key', type=str, default='XXXXXXXXX', help='OpenAI key')
-    argparse.add_argument('--model_path', type=str, default='rule_match', help='openai model or open-sourced LLMs')
+    argparse.add_argument('--openai_key', type=str, default='You must have an OpenAI key', help='OpenAI key')
+    argparse.add_argument('--model_path', type=str, default='moderation', help='openai model or open-sourced LLMs')
     argparse.add_argument("--temperature", type=float, default=0.01)                     # some models like ChatGLM do not support zero temperature
     argparse.add_argument("--repetition_penalty", type=float, default=1.0)
     argparse.add_argument("--max-new-tokens", type=int, default=512)
     argparse.add_argument("--debug", action="store_true")
-    argparse.add_argument("--with_label", action="store_true")
+    argparse.add_argument("--with_question", action="store_true")
     add_model_args(argparse)
     args = argparse.parse_args()
     if args.model_path == 'rule_match' or args.model_path == 'roberta':
