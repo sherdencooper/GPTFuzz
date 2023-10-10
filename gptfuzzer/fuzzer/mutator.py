@@ -80,7 +80,7 @@ class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
                 "Now try to generate the template. Do not make any other explanation nor have "
                 "beginning or ending indicator in your answer. Again, remember to have '[INSERT "
                 "PROMPT HERE]' in your answer.")
-    
+
     def mutate_single(self, seed):
         return super().mutate_single(self.generate_similar(seed, self.fuzzer.prompt_nodes))
 
@@ -164,6 +164,7 @@ class OpenAIMutatorShorten(OpenAIMutatorBase):
     def mutate_single(self, seed):
         return super().mutate_single(self.shorten(seed, self.fuzzer.prompt_nodes))
 
+
 class OpenAIMutatorRephrase(OpenAIMutatorBase):
     def __init__(self,
                  fuzzer: 'GPTFuzzer',
@@ -188,6 +189,7 @@ class OpenAIMutatorRephrase(OpenAIMutatorBase):
 
     def mutate_single(self, seed):
         return super().mutate_single(self.rephrase(seed, self.fuzzer.prompt_nodes))
+
 
 class MutatePolicy:
     def __init__(self,
