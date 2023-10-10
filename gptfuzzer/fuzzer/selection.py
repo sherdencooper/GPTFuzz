@@ -4,19 +4,19 @@ import numpy as np
 from gptfuzzer.fuzzer import GPTFuzzer, PromptNode
 
 
-class SelectionPolicy:
+class SelectPolicy:
     def __init__(self, fuzzer: GPTFuzzer):
         self.fuzzer = fuzzer
 
     def select(self) -> PromptNode:
         raise NotImplementedError(
-            "SelectionPolicy must implement select method.")
+            "SelectPolicy must implement select method.")
 
     def update(self, succ_num):
         pass
 
 
-class RoundRobinSelectionPolicy(SelectionPolicy):
+class RoundRobinSelectPolicy(SelectPolicy):
     def __init__(self, fuzzer: GPTFuzzer):
         super().__init__(fuzzer)
         self.index: int = 0
@@ -31,7 +31,7 @@ class RoundRobinSelectionPolicy(SelectionPolicy):
                       ) % len(self.fuzzer.prompt_nodes)
 
 
-class RandomSelectionPolicy(SelectionPolicy):
+class RandomSelectPolicy(SelectPolicy):
     def __init__(self, fuzzer: GPTFuzzer):
         super().__init__(fuzzer)
 

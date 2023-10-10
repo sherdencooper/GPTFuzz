@@ -1,7 +1,7 @@
 import logging
 
 from .mutator import Mutator, MutatePolicy
-from .selection import SelectionPolicy
+from .selection import SelectPolicy
 from gptfuzzer.llm import LLM
 
 
@@ -57,7 +57,7 @@ class GPTFuzzer:
         self.max_reject: int = max_reject
         self.max_iteration: int = max_iteration
 
-        self.selection_policy: SelectionPolicy = None
+        self.selection_policy: SelectPolicy = None
         self.mutate_policy: MutatePolicy = None
 
     def is_stop(self):
@@ -69,7 +69,7 @@ class GPTFuzzer:
         ]
         return any(getattr(self, max_attr) != -1 and getattr(self, curr_attr) >= getattr(self, max_attr) for max_attr, curr_attr in checks)
 
-    def set_policy(self, selection_policy: SelectionPolicy, mutate_policy: MutatePolicy):
+    def set_policy(self, selection_policy: SelectPolicy, mutate_policy: MutatePolicy):
         self.selection_policy = selection_policy
         self.mutate_policy = mutate_policy
 
