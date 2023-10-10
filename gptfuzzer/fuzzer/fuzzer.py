@@ -2,7 +2,9 @@ import logging
 
 from .mutator import Mutator, MutatePolicy
 from .selection import SelectPolicy
+
 from gptfuzzer.llm import LLM
+from gptfuzzer.utils.template import synthesis_message
 
 
 class PromptNode:
@@ -10,11 +12,13 @@ class PromptNode:
                  gptfuzzer: 'GPTFuzzer',
                  prompt: str,
                  response: str = None,
+                 results: 'list[int]' = None,
                  parent: 'PromptNode' = None,
                  mutator: 'Mutator' = None):
         self.gptfuzzer: 'GPTFuzzer' = gptfuzzer
         self.prompt: str = prompt
         self.response: str = response
+        self.results: 'list[int]' = results
         self.visited_num = 0
 
         self.parent: 'PromptNode' = parent
@@ -26,14 +30,12 @@ class PromptNode:
             self.level: int = parent.level + 1
             parent.child.append(self)
 
-        self.index: int = len(self.gptfuzzer.prompt_nodes)
-        self.gptfuzzer.prompt_nodes.append(self)
-
 
 class GPTFuzzer:
     def __init__(self,
                  questions: 'list[str]',
-                 targets: 'list[LLM]',
+                 target: LLM,
+                 predictor,  # FIXME: what is this?
                  initial_seed: 'list[str]',
                  max_query: int = -1,
                  max_jailbreak: int = -1,
@@ -42,7 +44,8 @@ class GPTFuzzer:
                  ):
 
         self.questions: 'list[str]' = questions
-        self.targets: 'list[LLM]' = targets
+        self.target: LLM = target
+        self.predictor = predictor
         self.prompt_nodes: 'list[PromptNode]' = [
             PromptNode(self, prompt) for prompt in initial_seed
         ]
@@ -84,7 +87,38 @@ class GPTFuzzer:
             mutated_results = self.mutate_policy.mutate_single(seed)
 
             # attack
+            self.evluate(mutated_results)
 
             # update
+            self.update(mutated_results)
 
         logging.info("Fuzzing finished!")
+
+    def evluate(self, prompt_nodes: 'list[PromptNode]'):
+        for prompt_node in prompt_nodes:
+            responses = []
+            for question in self.questions:
+                message = synthesis_message(question, prompt_node.prompt)
+                if message is None:  # The prompt is not valid
+                    prompt_node.response = []
+                    prompt_node.results = []
+                    break
+
+                responses.append(self.send(message))
+            else:
+                prompt_node.response = responses
+                prompt_node.results = self.predictor.predict(
+                    prompt_node.prompt, responses)
+
+    def update(self, prompt_nodes: 'list[PromptNode]'):
+        self.current_iteration += 1
+
+        for prompt_node in prompt_nodes:
+            if sum(prompt_node.results) > 0:
+                self.prompt_nodes.append(prompt_node)
+            
+            self.current_jailbreak += sum(prompt_node.results)
+            self.current_query += sum(prompt_node.response)
+            self.current_reject += len(prompt_node.results) - sum(prompt_node.results)
+
+        self.selection_policy.update()
