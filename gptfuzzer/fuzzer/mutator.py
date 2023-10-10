@@ -46,7 +46,7 @@ class OpenAIMutatorBase(Mutator):
                         },
                         {
                             "role": "user",
-                            "content": self.callback(seed, self.fuzzer.prompt_nodes)
+                            "content": seed
                         },
                     ],
                     temperature=self.temperature,
