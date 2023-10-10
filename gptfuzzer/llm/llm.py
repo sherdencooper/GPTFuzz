@@ -69,8 +69,8 @@ class LocalModel(LLM):
         return model, tokenizer
 
     @torch.inference_mode()
-    def call(self, prompt):
-        ## FIXME: the function has some internal requirements
+    def send(self, prompt):
+        # FIXME: the function has some internal requirements
         conv_temp = get_conversation_template(self.path)
 
         conv_temp.append_message(conv_temp.roles[0], prompt)
@@ -91,8 +91,6 @@ class LocalModel(LLM):
         else:
             output_ids = output_ids[0][len(input_ids[0]):]
 
-        outputs = self.tokenizer.decode(
+        return self.tokenizer.decode(
             output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
         )
-
-        return outputs
