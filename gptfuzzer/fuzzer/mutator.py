@@ -2,6 +2,7 @@ import openai
 import random
 import logging
 from gptfuzzer.fuzzer import GPTFuzzer, PromptNode
+from gptfuzzer.utils.openai import openai_request
 
 
 class Mutator:
@@ -25,38 +26,28 @@ class OpenAIMutatorBase(Mutator):
                  max_trials: int = 100):
         super().__init__(fuzzer)
 
-        if api_key is None:
-            raise ValueError("OpenAI API key must be provided.")
-
-        openai.api_key = api_key
+        self.api_key = api_key
         self.temperature = temperature
         self.top_n = top_n
         self.model = model
         self.max_trials = max_trials
 
     def mutate_single(self, seed) -> list[str]:
-        for _ in range(self.max_trials):
-            try:
-                results = openai.Completion.create(
-                    model=self.model,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are a helpful assistant."
-                        },
-                        {
-                            "role": "user",
-                            "content": seed
-                        },
-                    ],
-                    temperature=self.temperature,
-                    n=self.top_n,
-                )
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": seed
+            },
+        ]
 
-                assert len(results['choices']) == self.top_n
-                return [results['choices'][i]['message']['content'] for i in range(self.top_n)]
-            except Exception as e:
-                logging.warning("OpenAI API call failed. Retrying...")
+        results = openai_request(
+            messages, self.model, self.temperature, self.top_n, self.max_trials, self.api_key)
+
+        return [results['choices'][i]['message']['content'] for i in range(self.top_n)]
 
 
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
