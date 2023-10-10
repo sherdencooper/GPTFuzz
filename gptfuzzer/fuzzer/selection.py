@@ -5,7 +5,7 @@ from gptfuzzer.fuzzer import GPTFuzzer, PromptNode
 
 
 class SelectionPolicy:
-    def __init__(self, fuzzer: 'GPTFuzzer'):
+    def __init__(self, fuzzer: GPTFuzzer):
         self.fuzzer = fuzzer
 
     def select(self) -> PromptNode:
@@ -17,7 +17,7 @@ class SelectionPolicy:
 
 
 class RoundRobinSelectionPolicy(SelectionPolicy):
-    def __init__(self, fuzzer: 'GPTFuzzer'):
+    def __init__(self, fuzzer: GPTFuzzer):
         super().__init__(fuzzer)
         self.index: int = 0
 
@@ -32,7 +32,7 @@ class RoundRobinSelectionPolicy(SelectionPolicy):
 
 
 class RandomSelectionPolicy(SelectionPolicy):
-    def __init__(self, fuzzer: 'GPTFuzzer'):
+    def __init__(self, fuzzer: GPTFuzzer):
         super().__init__(fuzzer)
 
     def select(self) -> PromptNode:
