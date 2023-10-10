@@ -4,7 +4,6 @@ from tqdm import tqdm
 import multiprocessing as mp
 import csv
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3,4"
 import subprocess
 import numpy as np
 from fuzz_utils import *
