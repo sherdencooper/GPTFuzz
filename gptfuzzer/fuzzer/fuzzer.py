@@ -2,6 +2,7 @@ import logging
 
 from .mutator import Mutator, MutatePolicy
 from .selection import SelectionPolicy
+from gptfuzzer.llm import LLM
 
 
 class PromptNode:
@@ -31,16 +32,18 @@ class PromptNode:
 
 class GPTFuzzer:
     def __init__(self,
-                 questions: list[str],
-                 initial_seed: list[str],
+                 questions: 'list[str]',
+                 targets: 'list[LLM]',
+                 initial_seed: 'list[str]',
                  max_query: int = -1,
                  max_jailbreak: int = -1,
                  max_reject: int = -1,
                  max_iteration: int = -1,
                  ):
 
-        self.questions: list[str] = questions
-        self.prompt_nodes: list[PromptNode] = [
+        self.questions: 'list[str]' = questions
+        self.targets: 'list[LLM]' = targets
+        self.prompt_nodes: 'list[PromptNode]' = [
             PromptNode(self, prompt) for prompt in initial_seed
         ]
 
@@ -69,19 +72,19 @@ class GPTFuzzer:
     def set_policy(self, selection_policy: SelectionPolicy, mutate_policy: MutatePolicy):
         self.selection_policy = selection_policy
         self.mutate_policy = mutate_policy
-    
+
     def run(self):
         logging.info("Fuzzing started!")
-        
+
         while not self.is_stop():
-            ## seed selection
+            # seed selection
             seed = self.selection_policy.select()
 
-            ## mutation            
+            # mutation
             mutated_results = self.mutate_policy.mutate_single(seed)
 
-            ## attack
+            # attack
 
-            ## update
+            # update
 
         logging.info("Fuzzing finished!")
