@@ -1,7 +1,10 @@
 import logging
 
-from .mutator import Mutator, MutatePolicy
-from .selection import SelectPolicy
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .mutator import Mutator, MutatePolicy
+    from .selection import SelectPolicy
 
 from gptfuzzer.llm import LLM
 from gptfuzzer.utils.template import synthesis_message
@@ -24,12 +27,16 @@ class PromptNode:
 
         self.parent: 'PromptNode' = parent
         self.mutator: 'Mutator' = mutator
-        self.child: list[PromptNode] = []
+        self.child: 'list[PromptNode]' = []
         self.level: int = 0 if parent is None else parent.level + 1
 
         self._index: int = None
 
-    @property.setter
+    @property
+    def index(self):
+        return self._index
+
+    @index.setter
     def index(self, index: int):
         self._index = index
         if self.parent is not None:
@@ -51,9 +58,11 @@ class PromptNode:
 class GPTFuzzer:
     def __init__(self,
                  questions: 'list[str]',
-                 target: LLM,
-                 predictor: Predictor,
+                 target: 'LLM',
+                 predictor: 'Predictor',
                  initial_seed: 'list[str]',
+                 mutate_policy: 'MutatePolicy' = None,
+                 selection_policy: 'SelectPolicy' = None,
                  max_query: int = -1,
                  max_jailbreak: int = -1,
                  max_reject: int = -1,
@@ -67,6 +76,12 @@ class GPTFuzzer:
             PromptNode(self, prompt) for prompt in initial_seed
         ]
         self.initial_prompts_nodes = self.prompt_nodes.copy()
+        
+        assert mutate_policy is not None, "mutate_policy is None"
+        assert selection_policy is not None, "selection_policy is None"
+
+        self.mutate_policy = mutate_policy
+        self.selection_policy = selection_policy
 
         self.current_query: int = 0
         self.current_jailbreak: int = 0
@@ -76,10 +91,13 @@ class GPTFuzzer:
         self.max_query: int = max_query
         self.max_jailbreak: int = max_jailbreak
         self.max_reject: int = max_reject
-        self.max_iteration: int = max_iteration
+        self.max_iteration: int = max_iteration        
 
-        self.selection_policy: SelectPolicy = None
-        self.mutate_policy: MutatePolicy = None
+        self.setup()
+
+    def setup(self):
+        self.mutate_policy.fuzzer = self
+        self.selection_policy.fuzzer = self
 
     def is_stop(self):
         checks = [
@@ -89,10 +107,6 @@ class GPTFuzzer:
             ('max_iteration', 'current_iteration'),
         ]
         return any(getattr(self, max_attr) != -1 and getattr(self, curr_attr) >= getattr(self, max_attr) for max_attr, curr_attr in checks)
-
-    def set_policy(self, selection_policy: SelectPolicy, mutate_policy: MutatePolicy):
-        self.selection_policy = selection_policy
-        self.mutate_policy = mutate_policy
 
     def run(self):
         logging.info("Fuzzing started!")

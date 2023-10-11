@@ -17,7 +17,7 @@ class SelectPolicy:
 
 
 class RoundRobinSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer):
+    def __init__(self, fuzzer: GPTFuzzer = None):
         super().__init__(fuzzer)
         self.index: int = 0
 
@@ -32,7 +32,7 @@ class RoundRobinSelectPolicy(SelectPolicy):
 
 
 class RandomSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer):
+    def __init__(self, fuzzer: GPTFuzzer = None):
         super().__init__(fuzzer)
 
     def select(self) -> PromptNode:
@@ -42,8 +42,9 @@ class RandomSelectPolicy(SelectPolicy):
 
 
 class UCBSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer,
-                 explore_coeff: float = 1.0):
+    def __init__(self,
+                 explore_coeff: float = 1.0,
+                 fuzzer: GPTFuzzer = None):
         super().__init__(fuzzer)
 
         self.step = 0
@@ -76,13 +77,13 @@ class UCBSelectPolicy(SelectPolicy):
 
 
 class MCTSSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer):
+    def __init__(self, fuzzer: GPTFuzzer = None):
         super().__init__(fuzzer)
 
         self.step = 0
         self.mctc_select_path: 'list[PromptNode]' = []
         self.last_choice_index = None
-        self.rewards = [0 for _ in range(len(self.fuzzer.prompt_nodes))]
+        self.rewards = []
 
     def select(self) -> PromptNode:
         self.step += 1
@@ -129,9 +130,9 @@ class MCTSSelectPolicy(SelectPolicy):
 
 class EXP3SelectPolicy(SelectPolicy):
     def __init__(self,
-                 fuzzer: GPTFuzzer,
                  gamma: float = 0.05,
-                 alpha: float = 25):
+                 alpha: float = 25,
+                 fuzzer: GPTFuzzer = None):
         super().__init__(fuzzer)
 
         self.energy = self.fuzzer.energy

@@ -2,21 +2,15 @@ import torch
 import openai
 from fastchat.model import load_model, get_conversation_template
 
-from gptfuzzer.fuzzer import GPTFuzzer
-
 
 class LLM:
-    def __init__(self,
-                 fuzzer: GPTFuzzer
-                 ):
-        self.fuzzer: GPTFuzzer = fuzzer
+    def __init__(self):
         self.model = None
         self.tokenizer = None
 
 
 class LocalLLM(LLM):
     def __init__(self,
-                 fuzzer: GPTFuzzer,
                  path,
                  device='cuda',
                  num_gpus=1,
@@ -29,7 +23,7 @@ class LocalLLM(LLM):
                  repetition_penalty=1.0,
                  max_new_tokens=512
                  ):
-        super().__init__(fuzzer)
+        super().__init__()
 
         self.model, self.tokenizer = load_model(
             path,
