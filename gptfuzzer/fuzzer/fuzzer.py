@@ -5,7 +5,7 @@ from .selection import SelectPolicy
 
 from gptfuzzer.llm import LLM
 from gptfuzzer.utils.template import synthesis_message
-
+from gptfuzzer.utils.predict import Predictor
 
 class PromptNode:
     def __init__(self,
@@ -35,7 +35,7 @@ class GPTFuzzer:
     def __init__(self,
                  questions: 'list[str]',
                  target: LLM,
-                 predictor,  # FIXME: what is this?
+                 predictor: Predictor, 
                  initial_seed: 'list[str]',
                  max_query: int = -1,
                  max_jailbreak: int = -1,
