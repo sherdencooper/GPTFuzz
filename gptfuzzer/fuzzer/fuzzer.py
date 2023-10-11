@@ -7,6 +7,7 @@ from gptfuzzer.llm import LLM
 from gptfuzzer.utils.template import synthesis_message
 from gptfuzzer.utils.predict import Predictor
 
+
 class PromptNode:
     def __init__(self,
                  gptfuzzer: 'GPTFuzzer',
@@ -24,18 +25,34 @@ class PromptNode:
         self.parent: 'PromptNode' = parent
         self.mutator: 'Mutator' = mutator
         self.child: list[PromptNode] = []
-        if parent is None:
-            self.level: int = 0
-        else:
-            self.level: int = parent.level + 1
-            parent.child.append(self)
+        self.level: int = 0 if parent is None else parent.level + 1
+
+        self._index: int = None
+
+    @property.setter
+    def index(self, index: int):
+        self._index = index
+        if self.parent is not None:
+            self.parent.child[index] = self
+
+    @property
+    def num_jailbreak(self):
+        return sum(self.results)
+
+    @property
+    def num_reject(self):
+        return len(self.results) - sum(self.results)
+
+    @property
+    def num_query(self):
+        return sum(self.results)
 
 
 class GPTFuzzer:
     def __init__(self,
                  questions: 'list[str]',
                  target: LLM,
-                 predictor: Predictor, 
+                 predictor: Predictor,
                  initial_seed: 'list[str]',
                  max_query: int = -1,
                  max_jailbreak: int = -1,
@@ -49,6 +66,7 @@ class GPTFuzzer:
         self.prompt_nodes: 'list[PromptNode]' = [
             PromptNode(self, prompt) for prompt in initial_seed
         ]
+        self.initial_prompts_nodes = self.prompt_nodes.copy()
 
         self.current_query: int = 0
         self.current_jailbreak: int = 0
@@ -114,11 +132,12 @@ class GPTFuzzer:
         self.current_iteration += 1
 
         for prompt_node in prompt_nodes:
-            if sum(prompt_node.results) > 0:
+            if prompt_node.num_jailbreak > 0:
+                prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
-            
-            self.current_jailbreak += sum(prompt_node.results)
-            self.current_query += sum(prompt_node.response)
-            self.current_reject += len(prompt_node.results) - sum(prompt_node.results)
+
+            self.current_jailbreak += prompt_node.num_jailbreak
+            self.current_query += prompt_node.num_query
+            self.current_reject += prompt_node.num_reject
 
         self.selection_policy.update()
