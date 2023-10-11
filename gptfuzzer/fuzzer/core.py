@@ -76,7 +76,10 @@ class GPTFuzzer:
             PromptNode(self, prompt) for prompt in initial_seed
         ]
         self.initial_prompts_nodes = self.prompt_nodes.copy()
-        
+
+        for i, prompt_node in enumerate(self.prompt_nodes):
+            prompt_node.index = i
+
         assert mutate_policy is not None, "mutate_policy is None"
         assert selection_policy is not None, "selection_policy is None"
 
@@ -91,7 +94,7 @@ class GPTFuzzer:
         self.max_query: int = max_query
         self.max_jailbreak: int = max_jailbreak
         self.max_reject: int = max_reject
-        self.max_iteration: int = max_iteration        
+        self.max_iteration: int = max_iteration
 
         self.setup()
 

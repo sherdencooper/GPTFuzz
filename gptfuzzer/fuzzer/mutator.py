@@ -17,7 +17,6 @@ class Mutator:
 
 class OpenAIMutatorBase(Mutator):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
@@ -25,7 +24,6 @@ class OpenAIMutatorBase(Mutator):
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(fuzzer)
 
-        self.api_key = api_key
         self.temperature = temperature
         self.top_n = top_n
         self.model = model
@@ -44,20 +42,19 @@ class OpenAIMutatorBase(Mutator):
         ]
 
         results = openai_request(
-            messages, self.model, self.temperature, self.top_n, self.max_trials, self.api_key)
+            messages, self.model, self.temperature, self.top_n, self.max_trials)
 
         return [results['choices'][i]['message']['content'] for i in range(self.top_n)]
 
 
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
                  max_trials: int = 100,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(fuzzer, api_key, temperature, top_n, model, max_trials)
+        super().__init__(temperature, top_n, model, max_trials, fuzzer)
 
     def generate_similar(self, seed: str, _: 'list[PromptNode]'):
         return ("I need you to generate one template. I will give you one template example. "
@@ -77,13 +74,12 @@ class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
 
 class OpenAIMutatorCrossOver(OpenAIMutatorBase):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
                  max_trials: int = 100,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(api_key, temperature, top_n, model, max_trials, fuzzer)
+        super().__init__(temperature, top_n, model, max_trials, fuzzer)
 
     def corss_over(self, seed: str, prompt_nodes: 'list[PromptNode]'):
         return (
@@ -104,13 +100,12 @@ class OpenAIMutatorCrossOver(OpenAIMutatorBase):
 
 class OpenAIMutatorExpand(OpenAIMutatorBase):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
                  max_trials: int = 100,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(api_key, temperature, top_n, model, max_trials, fuzzer)
+        super().__init__(temperature, top_n, model, max_trials, fuzzer)
 
     def expand(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -130,13 +125,12 @@ class OpenAIMutatorExpand(OpenAIMutatorBase):
 
 class OpenAIMutatorShorten(OpenAIMutatorBase):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
                  max_trials: int = 100,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(api_key, temperature, top_n, model, max_trials, fuzzer)
+        super().__init__(temperature, top_n, model, max_trials, fuzzer)
 
     def shorten(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -156,13 +150,12 @@ class OpenAIMutatorShorten(OpenAIMutatorBase):
 
 class OpenAIMutatorRephrase(OpenAIMutatorBase):
     def __init__(self,
-                 api_key: str,
                  temperature: int = 1,
                  top_n: int = 1,
                  model: str = 'gpt-3.5-turbo',
                  max_trials: int = 100,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(api_key, temperature, top_n, model, max_trials, fuzzer)
+        super().__init__(temperature, top_n, model, max_trials, fuzzer)
 
     def rephrase(self, seed: str, _: 'list[PromptNode]'):
         return (
