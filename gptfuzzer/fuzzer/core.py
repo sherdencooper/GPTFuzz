@@ -62,7 +62,7 @@ class GPTFuzzer:
                  predictor: 'Predictor',
                  initial_seed: 'list[str]',
                  mutate_policy: 'MutatePolicy' = None,
-                 selection_policy: 'SelectPolicy' = None,
+                 select_policy: 'SelectPolicy' = None,
                  max_query: int = -1,
                  max_jailbreak: int = -1,
                  max_reject: int = -1,
@@ -81,10 +81,10 @@ class GPTFuzzer:
             prompt_node.index = i
 
         assert mutate_policy is not None, "mutate_policy is None"
-        assert selection_policy is not None, "selection_policy is None"
+        assert select_policy is not None, "select_policy is None"
 
         self.mutate_policy = mutate_policy
-        self.selection_policy = selection_policy
+        self.select_policy = select_policy
 
         self.current_query: int = 0
         self.current_jailbreak: int = 0
@@ -100,7 +100,7 @@ class GPTFuzzer:
 
     def setup(self):
         self.mutate_policy.fuzzer = self
-        self.selection_policy.fuzzer = self
+        self.select_policy.fuzzer = self
 
     def is_stop(self):
         checks = [
@@ -116,7 +116,7 @@ class GPTFuzzer:
 
         while not self.is_stop():
             # seed selection
-            seed = self.selection_policy.select()
+            seed = self.select_policy.select()
 
             # mutation
             mutated_results = self.mutate_policy.mutate_single(seed)
@@ -157,4 +157,4 @@ class GPTFuzzer:
             self.current_query += prompt_node.num_query
             self.current_reject += prompt_node.num_reject
 
-        self.selection_policy.update()
+        self.select_policy.update()

@@ -24,7 +24,7 @@ fuzzer = GPTFuzzer(
         OpenAIMutatorRephrase(),
         OpenAIMutatorShorten()
     ]),
-    selection_policy=MCTSSelectPolicy(),
+    select_policy=MCTSSelectPolicy(),
 )
 
 fuzzer.run()
