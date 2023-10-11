@@ -1,1 +1,1 @@
-from .llm import LLM
+from .llm import LLM, LocalLLM

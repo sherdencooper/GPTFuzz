@@ -14,7 +14,7 @@ class LLM:
         self.tokenizer = None
 
 
-class LocalModel(LLM):
+class LocalLLM(LLM):
     def __init__(self,
                  fuzzer: GPTFuzzer,
                  path,
