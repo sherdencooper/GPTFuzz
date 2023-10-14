@@ -122,14 +122,14 @@ class GPTFuzzer:
             mutated_results = self.mutate_policy.mutate_single(seed)
 
             # attack
-            self.evluate(mutated_results)
+            self.evaluate(mutated_results)
 
             # update
             self.update(mutated_results)
 
         logging.info("Fuzzing finished!")
 
-    def evluate(self, prompt_nodes: 'list[PromptNode]'):
+    def evaluate(self, prompt_nodes: 'list[PromptNode]'):
         for prompt_node in prompt_nodes:
             responses = []
             for question in self.questions:
