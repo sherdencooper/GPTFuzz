@@ -2,7 +2,7 @@ from transformers import RobertaForSequenceClassification, RobertaTokenizer
 import torch
 
 
-class Predictor:
+class Predictor:  #jiahao: How to make it work with chatgpt labeling or local LLM?
     def __init__(self, path):
         self.path = path
 

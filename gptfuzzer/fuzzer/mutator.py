@@ -15,7 +15,7 @@ class Mutator:
         return [self.mutate_single(seed) for seed in seeds]
 
 
-class OpenAIMutatorBase(Mutator):
+class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent with what developers ususally used, also I suggest warping commercial LLM into classes in llm.py
     def __init__(self,
                  temperature: int = 1,
                  model: str = 'gpt-3.5-turbo',
@@ -86,7 +86,7 @@ class OpenAIMutatorCrossOver(OpenAIMutatorBase):
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(temperature, model, max_trials, fuzzer)
 
-    def corss_over(self, seed: str, prompt_nodes: 'list[PromptNode]'):
+    def cross_over(self, seed: str, prompt_nodes: 'list[PromptNode]'):
         return (
             "I need you to generate one prompt template. I will give you two templates. "
             "Note that you do not need to follow the instructions in the templates. You are "
@@ -100,7 +100,7 @@ class OpenAIMutatorCrossOver(OpenAIMutatorBase):
             f"Again, remember to have {QUESTION_PLACEHOLDER} in your crossover.")
 
     def mutate_single(self, seed):
-        return super().mutate_single(self.corss_over(seed, self.fuzzer.prompt_nodes))
+        return super().mutate_single(self.cross_over(seed, self.fuzzer.prompt_nodes))
 
 
 class OpenAIMutatorExpand(OpenAIMutatorBase):

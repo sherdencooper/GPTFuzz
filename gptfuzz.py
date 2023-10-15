@@ -1,6 +1,7 @@
 import sys
-sys.path.append('..')
-
+sys.path.append('..')  # jiahao: what does this do?
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'  # for debugging
 import openai
 from gptfuzzer.utils.predict import RoBERTaPredictor
 from gptfuzzer.llm import LocalLLM
