@@ -2,7 +2,7 @@ import random
 from .core import GPTFuzzer, PromptNode
 from gptfuzzer.utils.openai import openai_request
 from gptfuzzer.utils.template import QUESTION_PLACEHOLDER
-
+from gptfuzzer.llm import OnlineLLM, LocalLLM
 
 class Mutator:
     def __init__(self, fuzzer: 'GPTFuzzer'):
