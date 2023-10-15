@@ -15,6 +15,7 @@ class LocalLLM(LLM):
                  device='cuda',
                  num_gpus=1,
                  max_gpu_memory=0.5,
+                 dtype=torch.float16,
                  load_8bit=False,
                  cpu_offloading=False,
                  revision=None,
@@ -39,12 +40,13 @@ class LocalLLM(LLM):
         self.temperature = temperature
         self.repetition_penalty = repetition_penalty
         self.max_new_tokens = max_new_tokens
-
+    #Why add the default args again?
     @torch.inference_mode()
     def create_model(self, path,
                      device='cuda',
                      num_gpus=1,
                      max_gpu_memory=0.5,
+                     dtype=torch.float16,
                      load_8bit=False,
                      cpu_offloading=False,
                      revision=None,
@@ -54,6 +56,7 @@ class LocalLLM(LLM):
             device,
             num_gpus,
             max_gpu_memory,
+            dtype,
             load_8bit,
             cpu_offloading,
             revision=revision,

@@ -1,6 +1,6 @@
 # GPTFUZZER : Red Teaming Large Language Models with Auto-Generated Jailbreak Prompts
 
-![](sources/icon.png)
+<img src="./sources/icon.png" width=500>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
