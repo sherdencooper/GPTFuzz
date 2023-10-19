@@ -1,4 +1,6 @@
 import logging
+import time
+import csv
 
 from typing import TYPE_CHECKING
 
@@ -68,6 +70,7 @@ class GPTFuzzer:
                  max_reject: int = -1,
                  max_iteration: int = -1,
                  energy: int = 1,
+                 result_file: str = None,
                  ):
 
         self.questions: 'list[str]' = questions
@@ -95,6 +98,14 @@ class GPTFuzzer:
         self.max_iteration: int = max_iteration
 
         self.energy: int = energy
+        if result_file is None:
+            result_file = f'results-{time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())}.csv'
+
+        self.raw_fp = open(result_file, 'w', buffering=1)
+        self.writter = csv.writer(self.raw_fp)
+        self.writter.writerow(
+            ['index', 'prompt', 'response', 'parent', 'results'])
+
         self.setup()
 
     def setup(self):
@@ -112,21 +123,27 @@ class GPTFuzzer:
 
     def run(self):
         logging.info("Fuzzing started!")
+        try:
+            while not self.is_stop():
+                # seed selection
+                seed = self.select_policy.select()
 
-        while not self.is_stop():
-            # seed selection
-            seed = self.select_policy.select()
+                # mutation
+                mutated_results = self.mutate_policy.mutate_single(seed)
 
-            # mutation
-            mutated_results = self.mutate_policy.mutate_single(seed)
+                # attack
+                self.evaluate(mutated_results)
 
-            # attack
-            self.evaluate(mutated_results)
+                # update
+                self.update(mutated_results)
 
-            # update
-            self.update(mutated_results)
+                # log
+                self.log()
+        except KeyboardInterrupt:
+            logging.info("Fuzzing interrupted by user!")
 
         logging.info("Fuzzing finished!")
+        self.raw_fp.close()
 
     def evaluate(self, prompt_nodes: 'list[PromptNode]'):
         for prompt_node in prompt_nodes:
@@ -151,9 +168,15 @@ class GPTFuzzer:
             if prompt_node.num_jailbreak > 0:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
+                self.result_file.writerow([prompt_node.index, prompt_node.prompt,
+                                          prompt_node.response, prompt_node.parent.index, prompt_node.results])
 
             self.current_jailbreak += prompt_node.num_jailbreak
             self.current_query += prompt_node.num_query
             self.current_reject += prompt_node.num_reject
 
         self.select_policy.update()
+
+    def log(self):
+        logging.info(
+            f"Iteration {self.current_iteration}: {self.current_jailbreak} jailbreaks, {self.current_reject} rejects, {self.current_query} queries")
