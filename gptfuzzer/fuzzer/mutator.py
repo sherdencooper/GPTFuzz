@@ -7,13 +7,23 @@ from gptfuzzer.llm import OpenAILLM, LLM
 
 class Mutator:
     def __init__(self, fuzzer: 'GPTFuzzer'):
-        self.fuzzer = fuzzer
+        self._fuzzer = fuzzer
+        self.n = None
 
     def mutate_single(self, seed) -> 'list[str]':
         raise NotImplementedError("Mutator must implement mutate method.")
 
     def mutate_batch(self, seeds) -> 'list[list[str]]':
         return [self.mutate_single(seed) for seed in seeds]
+
+    @property
+    def fuzzer(self):
+        return self._fuzzer
+
+    @fuzzer.setter
+    def fuzzer(self, gptfuzzer):
+        self._fuzzer = gptfuzzer
+        self.n = gptfuzzer.energy
 
 
 class OpenAIMutatorBase(Mutator):
@@ -29,7 +39,6 @@ class OpenAIMutatorBase(Mutator):
 
         self.model = model
 
-        self.n = None
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.request_timeout = request_timeout
@@ -38,15 +47,6 @@ class OpenAIMutatorBase(Mutator):
 
     def mutate_single(self, seed) -> 'list[str]':
         return self.model.generate(seed, self.temperature, self.max_tokens, self.n, self.request_timeout, self.max_trials, self.failure_sleep_time)
-
-    @property
-    def fuzzer(self):
-        return self._fuzzer
-
-    @fuzzer.setter
-    def fuzzer(self, fuzzer):
-        self._fuzzer = fuzzer
-        self.n = fuzzer.energy
 
 
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
@@ -208,10 +208,10 @@ class MutatePolicy:
         return self._fuzzer
 
     @fuzzer.setter
-    def fuzzer(self, fuzzer):
-        self._fuzzer = fuzzer
+    def fuzzer(self, gptfuzzer):
+        self._fuzzer = gptfuzzer
         for mutator in self.mutators:
-            mutator.fuzzer = fuzzer
+            mutator.fuzzer = gptfuzzer
 
 
 class MutateRandomSinglePolicy(MutatePolicy):

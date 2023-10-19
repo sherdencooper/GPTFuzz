@@ -111,6 +111,7 @@ class GPTFuzzer:
     def setup(self):
         self.mutate_policy.fuzzer = self
         self.select_policy.fuzzer = self
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', datefmt='[%H:%M:%S]')
 
     def is_stop(self):
         checks = [
@@ -125,19 +126,10 @@ class GPTFuzzer:
         logging.info("Fuzzing started!")
         try:
             while not self.is_stop():
-                # seed selection
                 seed = self.select_policy.select()
-
-                # mutation
                 mutated_results = self.mutate_policy.mutate_single(seed)
-
-                # attack
                 self.evaluate(mutated_results)
-
-                # update
                 self.update(mutated_results)
-
-                # log
                 self.log()
         except KeyboardInterrupt:
             logging.info("Fuzzing interrupted by user!")
@@ -175,7 +167,7 @@ class GPTFuzzer:
             self.current_query += prompt_node.num_query
             self.current_reject += prompt_node.num_reject
 
-        self.select_policy.update()
+        self.select_policy.update(prompt_nodes)
 
     def log(self):
         logging.info(
