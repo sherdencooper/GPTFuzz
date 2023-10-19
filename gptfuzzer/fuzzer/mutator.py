@@ -2,7 +2,7 @@ import random
 from .core import GPTFuzzer, PromptNode
 from gptfuzzer.utils.openai import openai_request
 from gptfuzzer.utils.template import QUESTION_PLACEHOLDER
-from gptfuzzer.llm import OnlineLLM, LocalLLM
+from gptfuzzer.llm import OpenAILLM, LocalLLM, LLM
 
 class Mutator:
     def __init__(self, fuzzer: 'GPTFuzzer'):
@@ -23,7 +23,7 @@ class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent wit
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(fuzzer)
 
-        self.top_n = None
+        self.n = None
         self.temperature = temperature
         self.model = model
         self.max_trials = max_trials
@@ -43,7 +43,7 @@ class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent wit
         results = openai_request(
             messages, self.model, self.temperature, self.self.max_trials)
 
-        return [results['choices'][i]['message']['content'] for i in range(self.top_n)]
+        return [results['choices'][i]['message']['content'] for i in range(self.n)]
 
     @property
     def fuzzer(self):
@@ -52,7 +52,7 @@ class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent wit
     @fuzzer.setter
     def fuzzer(self, fuzzer):
         self._fuzzer = fuzzer
-        self.top_n = fuzzer.energy
+        self.n = fuzzer.energy
 
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
     def __init__(self,
@@ -202,6 +202,8 @@ class MutatePolicy:
 class MutateRandomSinglePolicy(MutatePolicy):
     def __init__(self,
                  mutators: 'list[Mutator]',
+                 energy: int,
+                 mutate_model: 'LLM',
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(mutators, fuzzer)
 
