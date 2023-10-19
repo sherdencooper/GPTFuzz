@@ -1,3 +1,6 @@
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'  # for debugging
+
 from fastchat.model import add_model_args
 import argparse
 import pandas as pd
@@ -9,14 +12,9 @@ from gptfuzzer.fuzzer import GPTFuzzer
 from gptfuzzer.llm import LocalLLM, OpenAILLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 
-import os
-
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'  # for debugging
-
 
 def main(args):
-    questions = pd.read_csv(
-        'datasets/questions/question_list.csv')['text'].tolist()
+    questions = pd.read_csv(args.seed_path)['text'].tolist()
     initial_seed = pd.read_csv(
         'datasets/prompts/GPTFuzzer.csv')['text'].tolist()
 
@@ -30,7 +28,7 @@ def main(args):
         questions=questions,
         target=target_model,
         predictor=roberta_model,
-        prompt_nodes=initial_seed,
+        initial_seed=initial_seed,
         mutate_policy=MutateRandomSinglePolicy([
             OpenAIMutatorCrossOver(openai_model),
             OpenAIMutatorExpand(openai_model),
@@ -62,7 +60,7 @@ if __name__ == "__main__":
                         default='round_robin', help='The seed selection strategy')
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--seed_path", type=str,
-                        default="./datasets/prompts/jailbreak-prompt.xlsx")
+                        default="datasets/prompts/GPTFuzzer.csv")
     add_model_args(parser)
 
     args = parser.parse_args()

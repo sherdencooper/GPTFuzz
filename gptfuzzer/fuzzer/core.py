@@ -175,7 +175,7 @@ class GPTFuzzer:
             self.current_query += prompt_node.num_query
             self.current_reject += prompt_node.num_reject
 
-        self.select_policy.update()
+        self.select_policy.update(prompt_nodes)
 
     def log(self):
         logging.info(
