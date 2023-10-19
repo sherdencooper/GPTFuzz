@@ -18,8 +18,8 @@ class RoBERTaPredictor(Predictor):
             self.path).to('cuda')
         self.tokenizer = RobertaTokenizer.from_pretrained(self.path)
 
-    def predict(self, sequences):
-        inputs = self.tokenizer(sequences, padding=True, truncation=True,
+    def predict(self, sequences):  # jiahao: check the cuda devices later
+        inputs = self.tokenizer(sequences, padding=True, truncation=True,  
                                 max_length=512, return_tensors="pt").to('cuda')
         with torch.no_grad():
             outputs = self.model(**inputs)
