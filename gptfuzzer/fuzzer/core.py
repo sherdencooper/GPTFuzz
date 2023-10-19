@@ -13,13 +13,13 @@ from gptfuzzer.utils.predict import Predictor
 
 class PromptNode:
     def __init__(self,
-                 gptfuzzer: 'GPTFuzzer',
+                 fuzzer: 'GPTFuzzer',
                  prompt: str,
                  response: str = None,
                  results: 'list[int]' = None,
                  parent: 'PromptNode' = None,
                  mutator: 'Mutator' = None):
-        self.gptfuzzer: 'GPTFuzzer' = gptfuzzer
+        self.fuzzer: 'GPTFuzzer' = fuzzer
         self.prompt: str = prompt
         self.response: str = response
         self.results: 'list[int]' = results
@@ -40,7 +40,7 @@ class PromptNode:
     def index(self, index: int):
         self._index = index
         if self.parent is not None:
-            self.parent.child[index] = self
+            self.parent.child.append(self)
 
     @property
     def num_jailbreak(self):
@@ -61,12 +61,13 @@ class GPTFuzzer:
                  target: 'LLM',
                  predictor: 'Predictor',
                  initial_seed: 'list[str]',
-                 mutate_policy: 'MutatePolicy' = None,
-                 select_policy: 'SelectPolicy' = None,
+                 mutate_policy: 'MutatePolicy',
+                 select_policy: 'SelectPolicy',
                  max_query: int = -1,
                  max_jailbreak: int = -1,
                  max_reject: int = -1,
                  max_iteration: int = -1,
+                 energy: int = 1,
                  ):
 
         self.questions: 'list[str]' = questions
@@ -79,9 +80,6 @@ class GPTFuzzer:
 
         for i, prompt_node in enumerate(self.prompt_nodes):
             prompt_node.index = i
-
-        assert mutate_policy is not None, "mutate_policy is None"
-        assert select_policy is not None, "select_policy is None"
 
         self.mutate_policy = mutate_policy
         self.select_policy = select_policy
@@ -96,6 +94,7 @@ class GPTFuzzer:
         self.max_reject: int = max_reject
         self.max_iteration: int = max_iteration
 
+        self.energy: int = energy
         self.setup()
 
     def setup(self):
@@ -139,7 +138,7 @@ class GPTFuzzer:
                     prompt_node.results = []
                     break
 
-                responses.append(self.send(message))
+                responses.append(self.target.generate(message))
             else:
                 prompt_node.response = responses
                 prompt_node.results = self.predictor.predict(

@@ -4,16 +4,18 @@ from fastchat.model import load_model, get_conversation_template
 import logging
 import time
 
+
 class LLM:
     def __init__(self):
         self.model = None
         self.tokenizer = None
 
-    def generate(self, prompt): 
+    def generate(self, prompt):
         raise NotImplementedError("LLM must implement generate method.")
-    
+
     def predict(self, sequences):
         raise NotImplementedError("LLM must implement predict method.")
+
 
 class LocalLLM(LLM):
     def __init__(self,
@@ -66,7 +68,7 @@ class LocalLLM(LLM):
 
         return model, tokenizer
 
-    @torch.inference_mode() #jiahao: Why the name is send?
+    @torch.inference_mode()  # jiahao: Why the name is send?
     def generate(self, prompt, temperature=0.01, max_tokens=512, repetition_penalty=1.0):
         # FIXME: the function has some internal requirements  #jiahao: What does this mean?
         conv_temp = get_conversation_template(self.model_path)
@@ -93,16 +95,19 @@ class LocalLLM(LLM):
             output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
         )
 
+
 class BardLLM(LLM):
     def generate(self, prompt):
-        return 
+        return
+
 
 class ClaudeLLM(LLM):
     def generate(self, prompt):
-        return 
+        return
+
 
 class OpenAILLM(LLM):
-    def __init__(self, 
+    def __init__(self,
                  model_path,
                  api_key):
         super().__init__()
@@ -110,11 +115,12 @@ class OpenAILLM(LLM):
         if not api_key.startswith('sk-'):
             raise ValueError('OpenAI API key should start with sk-')
         if model_path not in ['gpt-3.5-turbo', 'gpt-4']:
-            raise ValueError('OpenAI model path should be gpt-3.5-turbo or gpt-4')
+            raise ValueError(
+                'OpenAI model path should be gpt-3.5-turbo or gpt-4')
         openai.api_key = api_key
         self.model_path = model_path
-    
-    def generate(self, prompt, temperature=0.0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
+
+    def generate(self, prompt, temperature=1, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
         for _ in range(max_trials):
             try:
                 results = openai.ChatCompletion.create(
@@ -125,13 +131,13 @@ class OpenAILLM(LLM):
                     ],
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    n = n,
+                    n=n,
                     request_timeout=request_timeout
                 )
                 return [results['choices'][i]['message']['content'] for i in range(n)]
             except Exception as e:
-                logging.warning(f"OpenAI API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
+                logging.warning(
+                    f"OpenAI API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
                 time.sleep(failure_sleep_time)
-                continue
-        
-        return [" " for _ in range(n)] # return empty string if failed after max_trials
+
+        return [" " for _ in range(n)]

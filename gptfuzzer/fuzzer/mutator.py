@@ -2,7 +2,8 @@ import random
 from .core import GPTFuzzer, PromptNode
 from gptfuzzer.utils.openai import openai_request
 from gptfuzzer.utils.template import QUESTION_PLACEHOLDER
-from gptfuzzer.llm import OpenAILLM, LocalLLM, LLM
+from gptfuzzer.llm import OpenAILLM, LLM
+
 
 class Mutator:
     def __init__(self, fuzzer: 'GPTFuzzer'):
@@ -15,35 +16,28 @@ class Mutator:
         return [self.mutate_single(seed) for seed in seeds]
 
 
-class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent with what developers ususally used, also I suggest warping commercial LLM into classes in llm.py
+class OpenAIMutatorBase(Mutator):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(fuzzer)
 
+        self.model = model
+
         self.n = None
         self.temperature = temperature
-        self.model = model
+        self.max_tokens = max_tokens
+        self.request_timeout = request_timeout
         self.max_trials = max_trials
+        self.failure_sleep_time = failure_sleep_time
 
     def mutate_single(self, seed) -> 'list[str]':
-        messages = [
-            {
-                "role": "system",
-                "content": "You are a helpful assistant."
-            },
-            {
-                "role": "user",
-                "content": seed
-            },
-        ]
-
-        results = openai_request(
-            messages, self.model, self.temperature, self.self.max_trials)
-
-        return [results['choices'][i]['message']['content'] for i in range(self.n)]
+        return self.model.generate(seed, self.temperature, self.max_tokens, self.n, self.request_timeout, self.max_trials, self.failure_sleep_time)
 
     @property
     def fuzzer(self):
@@ -54,13 +48,18 @@ class OpenAIMutatorBase(Mutator):  # The argument of chatgpt is inconsistent wit
         self._fuzzer = fuzzer
         self.n = fuzzer.energy
 
+
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(temperature, model, max_trials, fuzzer)
+        super().__init__(model, temperature, max_tokens,
+                         request_timeout, max_trials, failure_sleep_time, fuzzer)
 
     def generate_similar(self, seed: str, _: 'list[PromptNode]'):
         return ("I need you to generate one template. I will give you one template example. "
@@ -80,11 +79,15 @@ class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
 
 class OpenAIMutatorCrossOver(OpenAIMutatorBase):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(temperature, model, max_trials, fuzzer)
+        super().__init__(model, temperature, max_tokens,
+                         request_timeout, max_trials, failure_sleep_time, fuzzer)
 
     def cross_over(self, seed: str, prompt_nodes: 'list[PromptNode]'):
         return (
@@ -105,11 +108,15 @@ class OpenAIMutatorCrossOver(OpenAIMutatorBase):
 
 class OpenAIMutatorExpand(OpenAIMutatorBase):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(temperature, model, max_trials, fuzzer)
+        super().__init__(model, temperature, max_tokens,
+                         request_timeout, max_trials, failure_sleep_time, fuzzer)
 
     def expand(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -129,11 +136,15 @@ class OpenAIMutatorExpand(OpenAIMutatorBase):
 
 class OpenAIMutatorShorten(OpenAIMutatorBase):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(temperature, model, max_trials, fuzzer)
+        super().__init__(model, temperature, max_tokens,
+                         request_timeout, max_trials, failure_sleep_time, fuzzer)
 
     def shorten(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -153,11 +164,15 @@ class OpenAIMutatorShorten(OpenAIMutatorBase):
 
 class OpenAIMutatorRephrase(OpenAIMutatorBase):
     def __init__(self,
+                 model: 'OpenAILLM',
                  temperature: int = 1,
-                 model: str = 'gpt-3.5-turbo',
+                 max_tokens: int = 512,
+                 request_timeout: int = 20,
                  max_trials: int = 100,
+                 failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(temperature, model, max_trials, fuzzer)
+        super().__init__(model, temperature, max_tokens,
+                         request_timeout, max_trials, failure_sleep_time, fuzzer)
 
     def rephrase(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -202,8 +217,6 @@ class MutatePolicy:
 class MutateRandomSinglePolicy(MutatePolicy):
     def __init__(self,
                  mutators: 'list[Mutator]',
-                 energy: int,
-                 mutate_model: 'LLM',
                  fuzzer: 'GPTFuzzer' = None):
         super().__init__(mutators, fuzzer)
 
