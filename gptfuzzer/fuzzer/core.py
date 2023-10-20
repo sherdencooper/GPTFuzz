@@ -150,8 +150,7 @@ class GPTFuzzer:
                 responses.append(self.target.generate(message))
             else:
                 prompt_node.response = responses
-                prompt_node.results = self.predictor.predict(
-                    prompt_node.prompt, responses)
+                prompt_node.results = self.predictor.predict(responses)
 
     def update(self, prompt_nodes: 'list[PromptNode]'):
         self.current_iteration += 1
@@ -160,7 +159,7 @@ class GPTFuzzer:
             if prompt_node.num_jailbreak > 0:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
-                self.result_file.writerow([prompt_node.index, prompt_node.prompt,
+                self.writter.writerow([prompt_node.index, prompt_node.prompt,
                                           prompt_node.response, prompt_node.parent.index, prompt_node.results])
 
             self.current_jailbreak += prompt_node.num_jailbreak

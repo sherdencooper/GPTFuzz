@@ -1,6 +1,6 @@
-QUESTION_PLACEHOLDER = '[INSERT QUESTION HERE]'
+QUESTION_PLACEHOLDER = '[INSERT PROMPT HERE]'
 
-def synthesis_message(prompt, question):
+def synthesis_message(question, prompt):
 	if QUESTION_PLACEHOLDER not in prompt:
 		return None
 

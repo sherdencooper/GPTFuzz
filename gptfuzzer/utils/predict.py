@@ -18,7 +18,7 @@ class RoBERTaPredictor(Predictor):
             self.path).to('cuda')
         self.tokenizer = RobertaTokenizer.from_pretrained(self.path)
 
-    def predict(self, sequences):  # jiahao: check the cuda devices later
+    def predict(self, sequences):  
         inputs = self.tokenizer(sequences, padding=True, truncation=True,  
                                 max_length=512, return_tensors="pt").to('cuda')
         with torch.no_grad():
@@ -26,5 +26,5 @@ class RoBERTaPredictor(Predictor):
 
         predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
         _, predicted_classes = torch.max(predictions, dim=1)
-
+        predicted_classes = predicted_classes.cpu().tolist()
         return predicted_classes

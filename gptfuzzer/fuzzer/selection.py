@@ -76,14 +76,17 @@ class UCBSelectPolicy(SelectPolicy):
             succ_num / len(self.fuzzer.questions)
 
 
-class MCTSSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer = None):
+class MCTSExploreSelectPolicy(SelectPolicy):
+    def __init__(self, fuzzer: GPTFuzzer = None, ratio = 0.5, alpha = 0.1, beta = 0.2):
         super().__init__(fuzzer)
 
         self.step = 0
         self.mctc_select_path: 'list[PromptNode]' = []
         self.last_choice_index = None
         self.rewards = []
+        self.ratio = ratio # balance between exploration and exploitation
+        self.alpha = alpha # penalty for level
+        self.beta = beta   # minimal reward after penalty
 
     def select(self) -> PromptNode:
         self.step += 1
@@ -96,18 +99,18 @@ class MCTSSelectPolicy(SelectPolicy):
             self.fuzzer.initial_prompts_nodes,
             key=lambda pn:
             self.rewards[pn.index] / (pn.visited_num + 1) +
-            0.5 * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 1))
+            self.ratio * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 0.01))
         )
         self.mctc_select_path.append(cur)
 
         while len(cur.child) > 0:
-            if np.random.rand() < 0.1:
+            if np.random.rand() < self.alpha:
                 break
             cur = max(
                 cur.child,
                 key=lambda pn:
                 self.rewards[pn.index] / (pn.visited_num + 1) +
-                0.5 * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 0.01))
+                self.ratio * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 0.01))
             )
             self.mctc_select_path.append(cur)
 
@@ -125,7 +128,7 @@ class MCTSSelectPolicy(SelectPolicy):
         for prompt_node in reversed(self.mctc_select_path):
             reward = succ_num / len(self.fuzzer.questions)
             self.rewards[prompt_node.index] += reward * \
-                max(0.2, (1 - 0.1 * last_choice_node.level))
+                max(self.beta, (1 - 0.1 * last_choice_node.level))
 
 
 class EXP3SelectPolicy(SelectPolicy):

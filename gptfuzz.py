@@ -1,10 +1,10 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'  # for debugging
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
 import pandas as pd
-from gptfuzzer.fuzzer.selection import MCTSSelectPolicy
+from gptfuzzer.fuzzer.selection import MCTSExploreSelectPolicy
 from gptfuzzer.fuzzer.mutator import (
     MutateRandomSinglePolicy, OpenAIMutatorCrossOver, OpenAIMutatorExpand,
     OpenAIMutatorGenerateSimilar, OpenAIMutatorRephrase, OpenAIMutatorShorten)
@@ -34,8 +34,10 @@ def main(args):
             OpenAIMutatorRephrase(openai_model),
             OpenAIMutatorShorten(openai_model)],
         ),
-        select_policy=MCTSSelectPolicy(),
+        select_policy=MCTSExploreSelectPolicy(),
         energy=args.energy,
+        max_jailbreak=args.max_jailbreak,
+        max_query=args.max_query,
     )
 
     fuzzer.run()
@@ -43,7 +45,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
-    parser.add_argument('--api_key', type=str, default='', help='API Key')
+    parser.add_argument('--api_key', type=str, default='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', help='API Key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo',
                         help='openai model or open-sourced LLMs')
     parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf',

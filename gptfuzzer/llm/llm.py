@@ -120,7 +120,7 @@ class OpenAILLM(LLM):
         openai.api_key = api_key
         self.model_path = model_path
 
-    def generate(self, prompt, temperature=1, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
+    def generate(self, prompt, temperature=0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
         for _ in range(max_trials):
             try:
                 results = openai.ChatCompletion.create(
