@@ -45,7 +45,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
-    parser.add_argument('--api_key', type=str, default='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', help='API Key')
+    parser.add_argument('--api_key', type=str, default='', help='API Key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo',
                         help='openai model or open-sourced LLMs')
     parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf',
