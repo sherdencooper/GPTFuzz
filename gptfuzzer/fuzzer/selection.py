@@ -126,7 +126,7 @@ class MCTSExploreSelectPolicy(SelectPolicy):
 
         last_choice_node = self.fuzzer.prompt_nodes[self.last_choice_index]
         for prompt_node in reversed(self.mctc_select_path):
-            reward = succ_num / len(self.fuzzer.questions)
+            reward = succ_num / (len(self.fuzzer.questions) * len(prompt_nodes))
             self.rewards[prompt_node.index] += reward * \
                 max(self.beta, (1 - 0.1 * last_choice_node.level))
 

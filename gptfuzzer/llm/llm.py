@@ -3,7 +3,7 @@ import openai
 from fastchat.model import load_model, get_conversation_template
 import logging
 import time
-
+import concurrent.futures
 
 class LLM:
     def __init__(self):
@@ -141,3 +141,11 @@ class OpenAILLM(LLM):
                 time.sleep(failure_sleep_time)
 
         return [" " for _ in range(n)]
+    
+    def generate_batch(self, prompts, temperature=0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
+        results = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {executor.submit(self.generate, prompt, temperature, max_tokens, n, request_timeout, max_trials, failure_sleep_time): prompt for prompt in prompts}
+            for future in concurrent.futures.as_completed(futures):
+                    results.extend(future.result())
+        return results

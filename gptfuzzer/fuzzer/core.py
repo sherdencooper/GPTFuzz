@@ -54,7 +54,7 @@ class PromptNode:
 
     @property
     def num_query(self):
-        return sum(self.results)
+        return len(self.results)
 
 
 class GPTFuzzer:
@@ -71,6 +71,7 @@ class GPTFuzzer:
                  max_iteration: int = -1,
                  energy: int = 1,
                  result_file: str = None,
+                 generate_in_batch: bool = False,
                  ):
 
         self.questions: 'list[str]' = questions
@@ -106,6 +107,9 @@ class GPTFuzzer:
         self.writter.writerow(
             ['index', 'prompt', 'response', 'parent', 'results'])
 
+        if len(self.questions) > 0 and generate_in_batch is True:
+            self.generate_in_batch = True
+            logging.info("Generating reponses in batch mode! This is only for online LLM parallel query and local model vllm inference. Plz do not use it for local model huggingface inference!")
         self.setup()
 
     def setup(self):
@@ -140,15 +144,21 @@ class GPTFuzzer:
     def evaluate(self, prompt_nodes: 'list[PromptNode]'):
         for prompt_node in prompt_nodes:
             responses = []
+            messages = []
             for question in self.questions:
                 message = synthesis_message(question, prompt_node.prompt)
                 if message is None:  # The prompt is not valid
                     prompt_node.response = []
                     prompt_node.results = []
                     break
-
-                responses.append(self.target.generate(message))
+                if not self.generate_in_batch:
+                    response = self.target.generate(message)
+                    responses.append(response[0] if isinstance(response, list) else response)
+                else:
+                    messages.append(message)
             else:
+                if self.generate_in_batch:
+                    responses = self.target.generate_batch(messages)
                 prompt_node.response = responses
                 prompt_node.results = self.predictor.predict(responses)
 
