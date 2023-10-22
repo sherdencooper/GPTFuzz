@@ -13,6 +13,7 @@ from gptfuzzer.utils.template import synthesis_message
 from gptfuzzer.utils.predict import Predictor
 import warnings
 
+
 class PromptNode:
     def __init__(self,
                  fuzzer: 'GPTFuzzer',
@@ -117,7 +118,8 @@ class GPTFuzzer:
     def setup(self):
         self.mutate_policy.fuzzer = self
         self.select_policy.fuzzer = self
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', datefmt='[%H:%M:%S]')
+        logging.basicConfig(
+            level=logging.INFO, format='%(asctime)s %(message)s', datefmt='[%H:%M:%S]')
 
     def is_stop(self):
         checks = [
@@ -155,7 +157,8 @@ class GPTFuzzer:
                     break
                 if not self.generate_in_batch:
                     response = self.target.generate(message)
-                    responses.append(response[0] if isinstance(response, list) else response)
+                    responses.append(response[0] if isinstance(
+                        response, list) else response)
                 else:
                     messages.append(message)
             else:
@@ -172,7 +175,7 @@ class GPTFuzzer:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
                 self.writter.writerow([prompt_node.index, prompt_node.prompt,
-                                          prompt_node.response, prompt_node.parent.index, prompt_node.results])
+                                       prompt_node.response, prompt_node.parent.index, prompt_node.results])
 
             self.current_jailbreak += prompt_node.num_jailbreak
             self.current_query += prompt_node.num_query

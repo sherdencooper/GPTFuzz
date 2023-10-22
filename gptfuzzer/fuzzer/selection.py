@@ -77,15 +77,15 @@ class UCBSelectPolicy(SelectPolicy):
 
 
 class MCTSExploreSelectPolicy(SelectPolicy):
-    def __init__(self, fuzzer: GPTFuzzer = None, ratio = 0.5, alpha = 0.1, beta = 0.2):
+    def __init__(self, fuzzer: GPTFuzzer = None, ratio=0.5, alpha=0.1, beta=0.2):
         super().__init__(fuzzer)
 
         self.step = 0
         self.mctc_select_path: 'list[PromptNode]' = []
         self.last_choice_index = None
         self.rewards = []
-        self.ratio = ratio # balance between exploration and exploitation
-        self.alpha = alpha # penalty for level
+        self.ratio = ratio  # balance between exploration and exploitation
+        self.alpha = alpha  # penalty for level
         self.beta = beta   # minimal reward after penalty
 
     def select(self) -> PromptNode:
@@ -99,7 +99,8 @@ class MCTSExploreSelectPolicy(SelectPolicy):
             self.fuzzer.initial_prompts_nodes,
             key=lambda pn:
             self.rewards[pn.index] / (pn.visited_num + 1) +
-            self.ratio * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 0.01))
+            self.ratio * np.sqrt(2 * np.log(self.step) /
+                                 (pn.visited_num + 0.01))
         )
         self.mctc_select_path.append(cur)
 
@@ -110,7 +111,8 @@ class MCTSExploreSelectPolicy(SelectPolicy):
                 cur.child,
                 key=lambda pn:
                 self.rewards[pn.index] / (pn.visited_num + 1) +
-                self.ratio * np.sqrt(2 * np.log(self.step) / (pn.visited_num + 0.01))
+                self.ratio * np.sqrt(2 * np.log(self.step) /
+                                     (pn.visited_num + 0.01))
             )
             self.mctc_select_path.append(cur)
 
@@ -126,7 +128,8 @@ class MCTSExploreSelectPolicy(SelectPolicy):
 
         last_choice_node = self.fuzzer.prompt_nodes[self.last_choice_index]
         for prompt_node in reversed(self.mctc_select_path):
-            reward = succ_num / (len(self.fuzzer.questions) * len(prompt_nodes))
+            reward = succ_num / (len(self.fuzzer.questions)
+                                 * len(prompt_nodes))
             self.rewards[prompt_node.index] += reward * \
                 max(self.beta, (1 - 0.1 * last_choice_node.level))
 

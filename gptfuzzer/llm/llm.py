@@ -7,6 +7,7 @@ import concurrent.futures
 from vllm import LLM as vllm
 from vllm import SamplingParams
 
+
 class LLM:
     def __init__(self):
         self.model = None
@@ -46,9 +47,9 @@ class LocalLLM(LLM):
             debug=debug,
         )
         self.model_path = model_path
-        
+
         # monkey patch for latest FastChat to use llama2's official system message
-        if 'Llama-2' in model_path and system_message is None:   
+        if 'Llama-2' in model_path and system_message is None:
             self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. "
             "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. "
             "Please ensure that your responses are socially unbiased and positive in nature.\n\n"
@@ -86,12 +87,12 @@ class LocalLLM(LLM):
     def set_system_message(self, conv_temp):
         if self.system_message is not None:
             conv_temp.set_system_message(self.system_message)
-        
-    @torch.inference_mode() 
+
+    @torch.inference_mode()
     def generate(self, prompt, temperature=0.01, max_tokens=512, repetition_penalty=1.0):
         conv_temp = get_conversation_template(self.model_path)
         self.set_system_message(conv_temp)
-        
+
         conv_temp.append_message(conv_temp.roles[0], prompt)
         conv_temp.append_message(conv_temp.roles[1], None)
 
@@ -113,7 +114,6 @@ class LocalLLM(LLM):
         return self.tokenizer.decode(
             output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
         )
-        
 
     @torch.inference_mode()
     def generate_batch(self, prompts, temperature=0.01, max_tokens=512, repetition_penalty=1.0, batch_size=16):
@@ -121,13 +121,13 @@ class LocalLLM(LLM):
         for prompt in prompts:
             conv_temp = get_conversation_template(self.model_path)
             self.set_system_message(conv_temp)
-            
+
             conv_temp.append_message(conv_temp.roles[0], prompt)
             conv_temp.append_message(conv_temp.roles[1], None)
-            
+
             prompt_input = conv_temp.get_prompt()
             prompt_inputs.append(prompt_input)
-            
+
         if self.tokenizer.pad_token == None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = "left"
@@ -142,9 +142,11 @@ class LocalLLM(LLM):
                 repetition_penalty=repetition_penalty,
                 max_new_tokens=max_tokens,
             )
-            output_ids = output_ids[:, len(input_ids[0]) :]
-            outputs.extend(self.tokenizer.batch_decode(output_ids, skip_special_tokens=True, spaces_between_special_tokens=False))
+            output_ids = output_ids[:, len(input_ids[0]):]
+            outputs.extend(self.tokenizer.batch_decode(
+                output_ids, skip_special_tokens=True, spaces_between_special_tokens=False))
         return outputs
+
 
 class LocalVLLM(LLM):
     def __init__(self,
@@ -154,9 +156,10 @@ class LocalVLLM(LLM):
                  ):
         super().__init__()
         self.model_path = model_path
-        self.model = vllm(self.model_path, gpu_memory_utilization=gpu_memory_utilization)
+        self.model = vllm(
+            self.model_path, gpu_memory_utilization=gpu_memory_utilization)
         # monkey patch for latest FastChat to use llama2's official system message
-        if 'Llama-2' in model_path and system_message is None:   
+        if 'Llama-2' in model_path and system_message is None:
             self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. "
             "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. "
             "Please ensure that your responses are socially unbiased and positive in nature.\n\n"
@@ -166,35 +169,36 @@ class LocalVLLM(LLM):
             self.system_message = system_message
         else:
             self.system_message = None
-            
+
     def set_system_message(self, conv_temp):
         if self.system_message is not None:
             conv_temp.set_system_message(self.system_message)
-    
+
     def generate(self, prompt, temperature=0, max_tokens=512):
         prompts = [prompt]
         return self.generate_batch(prompts, temperature, max_tokens)
-        
-            
+
     def generate_batch(self, prompts, temperature=0, max_tokens=512):
         prompt_inputs = []
         for prompt in prompts:
             conv_temp = get_conversation_template(self.model_path)
             self.set_system_message(conv_temp)
-            
+
             conv_temp.append_message(conv_temp.roles[0], prompt)
             conv_temp.append_message(conv_temp.roles[1], None)
-            
+
             prompt_input = conv_temp.get_prompt()
-            prompt_inputs.append(prompt_input)       
-                
+            prompt_inputs.append(prompt_input)
+
         sampling_params = SamplingParams(temperature=0.0, max_tokens=512)
-        results = self.model.generate(prompt_inputs, sampling_params, use_tqdm=False)
+        results = self.model.generate(
+            prompt_inputs, sampling_params, use_tqdm=False)
         outputs = []
         for result in results:
             outputs.append(result.outputs[0].text)
         return outputs
-        
+
+
 class BardLLM(LLM):
     def generate(self, prompt):
         return
@@ -240,11 +244,12 @@ class OpenAILLM(LLM):
                 time.sleep(failure_sleep_time)
 
         return [" " for _ in range(n)]
-    
+
     def generate_batch(self, prompts, temperature=0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
         results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = {executor.submit(self.generate, prompt, temperature, max_tokens, n, request_timeout, max_trials, failure_sleep_time): prompt for prompt in prompts}
+            futures = {executor.submit(self.generate, prompt, temperature, max_tokens, n,
+                                       request_timeout, max_trials, failure_sleep_time): prompt for prompt in prompts}
             for future in concurrent.futures.as_completed(futures):
-                    results.extend(future.result())
+                results.extend(future.result())
         return results
