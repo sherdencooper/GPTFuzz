@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'  # for debugging
 
 from fastchat.model import add_model_args
 import argparse
@@ -32,11 +32,12 @@ def main(args):
 
     fuzzer = GPTFuzzer(
         questions=questions,
+        # target_model=openai_model,
         target=target_model,
         predictor=roberta_model,
         initial_seed=initial_seed,
         mutate_policy=MutateRandomSinglePolicy([
-            OpenAIMutatorCrossOver(openai_model, temperature=0.0),
+            OpenAIMutatorCrossOver(openai_model, temperature=0.0),   # for reproducement, plz use temperature > 0 for better fuzzing performance
             OpenAIMutatorExpand(openai_model, temperature=0.0),
             OpenAIMutatorGenerateSimilar(openai_model, temperature=0.0),
             OpenAIMutatorRephrase(openai_model, temperature=0.0),
