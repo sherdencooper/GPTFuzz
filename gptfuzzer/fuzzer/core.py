@@ -8,9 +8,10 @@ if TYPE_CHECKING:
     from .mutator import Mutator, MutatePolicy
     from .selection import SelectPolicy
 
-from gptfuzzer.llm import LLM
+from gptfuzzer.llm import LLM, LocalLLM
 from gptfuzzer.utils.template import synthesis_message
 from gptfuzzer.utils.predict import Predictor
+import warnings
 
 
 class PromptNode:
@@ -54,7 +55,7 @@ class PromptNode:
 
     @property
     def num_query(self):
-        return sum(self.results)
+        return len(self.results)
 
 
 class GPTFuzzer:
@@ -71,6 +72,7 @@ class GPTFuzzer:
                  max_iteration: int = -1,
                  energy: int = 1,
                  result_file: str = None,
+                 generate_in_batch: bool = False,
                  ):
 
         self.questions: 'list[str]' = questions
@@ -106,12 +108,18 @@ class GPTFuzzer:
         self.writter.writerow(
             ['index', 'prompt', 'response', 'parent', 'results'])
 
+        self.generate_in_batch = False
+        if len(self.questions) > 0 and generate_in_batch is True:
+            self.generate_in_batch = True
+            if isinstance(self.target, LocalLLM):
+                warnings.warn("IMPORTANT! Hugging face inference with batch generation has the problem of consistency due to pad tokens. We do not suggest doing so and you may experience (1) degraded output quality due to long padding tokens, (2) inconsistent responses due to different number of padding tokens during reproduction. You should turn off generate_in_batch or use vllm batch inference.")
         self.setup()
 
     def setup(self):
         self.mutate_policy.fuzzer = self
         self.select_policy.fuzzer = self
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', datefmt='[%H:%M:%S]')
+        logging.basicConfig(
+            level=logging.INFO, format='%(asctime)s %(message)s', datefmt='[%H:%M:%S]')
 
     def is_stop(self):
         checks = [
@@ -140,18 +148,24 @@ class GPTFuzzer:
     def evaluate(self, prompt_nodes: 'list[PromptNode]'):
         for prompt_node in prompt_nodes:
             responses = []
+            messages = []
             for question in self.questions:
                 message = synthesis_message(question, prompt_node.prompt)
                 if message is None:  # The prompt is not valid
                     prompt_node.response = []
                     prompt_node.results = []
                     break
-
-                responses.append(self.target.generate(message))
+                if not self.generate_in_batch:
+                    response = self.target.generate(message)
+                    responses.append(response[0] if isinstance(
+                        response, list) else response)
+                else:
+                    messages.append(message)
             else:
+                if self.generate_in_batch:
+                    responses = self.target.generate_batch(messages)
                 prompt_node.response = responses
-                prompt_node.results = self.predictor.predict(
-                    prompt_node.prompt, responses)
+                prompt_node.results = self.predictor.predict(responses)
 
     def update(self, prompt_nodes: 'list[PromptNode]'):
         self.current_iteration += 1
@@ -160,8 +174,8 @@ class GPTFuzzer:
             if prompt_node.num_jailbreak > 0:
                 prompt_node.index = len(self.prompt_nodes)
                 self.prompt_nodes.append(prompt_node)
-                self.result_file.writerow([prompt_node.index, prompt_node.prompt,
-                                          prompt_node.response, prompt_node.parent.index, prompt_node.results])
+                self.writter.writerow([prompt_node.index, prompt_node.prompt,
+                                       prompt_node.response, prompt_node.parent.index, prompt_node.results])
 
             self.current_jailbreak += prompt_node.num_jailbreak
             self.current_query += prompt_node.num_query
