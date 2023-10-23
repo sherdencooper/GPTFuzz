@@ -217,11 +217,15 @@ class MutatePolicy:
 class MutateRandomSinglePolicy(MutatePolicy):
     def __init__(self,
                  mutators: 'list[Mutator]',
-                 fuzzer: 'GPTFuzzer' = None):
+                 fuzzer: 'GPTFuzzer' = None,
+                 concatentate: bool = True):
         super().__init__(mutators, fuzzer)
+        self.concatentate = concatentate
 
     def mutate_single(self, prompt_node: 'PromptNode') -> 'list[PromptNode]':
         mutator = random.choice(self.mutators)
         results = mutator.mutate_single(prompt_node.prompt)
+        if self.concatentate:
+            results = [result + prompt_node.prompt  for result in results]
 
         return [PromptNode(self.fuzzer, result, parent=prompt_node, mutator=mutator) for result in results]

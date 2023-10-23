@@ -48,17 +48,15 @@ class LocalLLM(LLM):
         )
         self.model_path = model_path
 
-        # monkey patch for latest FastChat to use llama2's official system message
-        if 'Llama-2' in model_path and system_message is None:
-            self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. "
-            "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. "
-            "Please ensure that your responses are socially unbiased and positive in nature.\n\n"
-            "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. "
+        if system_message is None and 'Llama-2' in model_path:
+            # monkey patch for latest FastChat to use llama2's official system message
+            self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. " \
+            "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. " \
+            "Please ensure that your responses are socially unbiased and positive in nature.\n\n" \
+            "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. " \
             "If you don't know the answer to a question, please don't share false information."
-        elif system_message is None:
-            self.system_message = system_message
         else:
-            self.system_message = None
+            self.system_message = system_message
 
     @torch.inference_mode()
     def create_model(self, model_path,
@@ -158,17 +156,16 @@ class LocalVLLM(LLM):
         self.model_path = model_path
         self.model = vllm(
             self.model_path, gpu_memory_utilization=gpu_memory_utilization)
-        # monkey patch for latest FastChat to use llama2's official system message
-        if 'Llama-2' in model_path and system_message is None:
-            self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. "
-            "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. "
-            "Please ensure that your responses are socially unbiased and positive in nature.\n\n"
-            "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. "
+        
+        if system_message is None and 'Llama-2' in model_path:
+            # monkey patch for latest FastChat to use llama2's official system message
+            self.system_message = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. " \
+            "Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. " \
+            "Please ensure that your responses are socially unbiased and positive in nature.\n\n" \
+            "If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. " \
             "If you don't know the answer to a question, please don't share false information."
-        elif system_message is None:
-            self.system_message = system_message
         else:
-            self.system_message = None
+            self.system_message = system_message
 
     def set_system_message(self, conv_temp):
         if self.system_message is not None:

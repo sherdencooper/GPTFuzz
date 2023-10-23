@@ -13,7 +13,7 @@ This is the official repository for "GPTFUZZER : [Red Teaming Large Language Mod
 - [Datasets](#datasets)
 - [Models](#models)
 - [Running] (#running)
-- [Experiments](#experiments)
+<!-- - [Experiments](#experiments) -->
 - [Release](#release)
 - [FQA](#fqa)
 
@@ -45,9 +45,12 @@ tokenizer = RobertaTokenizer.from_pretrained(model_path)
 During our experiments, we found that our trained model can also be transferred to other questions. However, we also found that it does not work well on some questions and other languages. We will add more predictor model soon.
 
 ## Running
-We provide a python [example](./gptfuzz.py) to show the minimal code to run the fuzzing experiments. You can also refer to the [notebook](./gptfuzz.ipynb) for more details and explanations.
+We provide a python [example](./gptfuzz.py) to show the minimal code to run the fuzzing experiments. This example uses ChatGPT as mutate model to attack Llama-2-7B-chat with official system prompt(we did the monkey patch for Fastchat template), and you should be able to get the identical results in [example folder](./example/) (we set the random seed for reproducibility and temperature=0).
 
-## Experiments 
+
+You can also refer to the [notebook](./gptfuzz.ipynb) for more details and explanations.
+
+<!-- ## Experiments 
 
 ### Single-Model Fuzzing
 To run the single-model single-question fuzzing experiments, you can run `fuzz_single_question_single_model.py`. In default, it will use ChatGPT as the mutate model and try to attack Llama-2-7B-chat. You can read the args in the script for more details. We have a script to run fuzzing on all questions that human-written templates failed for Llama-2-7B-chat, which is `scripts/run_single_question_single_model.sh`. You could edit that script for your own experiments.
@@ -59,7 +62,7 @@ To run the multi-model fuzzing experiments, you can run `fuzz_multi_question_mul
 
 During fuzzing, the successful templates will be saved under `datasets/prompts_generated` and you can evaluate them with `evaluate_multi_question_multi_model.py` and `evaluate_multi_question_multi_model.py`
 
-For more details about the experiments, please refer to our paper.
+For more details about the experiments, please refer to our paper. -->
 ## Release
 
 Due to ethical concern, we decided not to release the adversarial templates we found during our experiments openly. However, we are happy to share them with researchers who are interested in this topic. Please contact us via [email](mailto:jiahao.yu@northwestern.edu) if you would like to get access to the templates we found during the experiments. Also, you can use the code in this repository to generate your own adversarial templates.
