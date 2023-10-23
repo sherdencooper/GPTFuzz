@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This is the official repository for "GPTFUZZER : [Red Teaming Large Language Models with Auto-Generated Jailbreak Prompts](https://arxiv.org/pdf/2309.10253.pdf)" by [Jiahao Yu](https://sherdencooper.github.io/), [Xingwei Lin](https://scholar.google.com/citations?user=Zv_rC0AAAAAJ&hl=en), [Zheng Yu](http://www.dataisland.org/), [Xinyu Xing](http://xinyuxing.org/).
+This is the official repository for "[GPTFUZZER: Red Teaming Large Language Models with Auto-Generated Jailbreak Prompts](https://arxiv.org/pdf/2309.10253.pdf)" by [Jiahao Yu](https://sherdencooper.github.io/), [Xingwei Lin](https://scholar.google.com/citations?user=Zv_rC0AAAAAJ&hl=en), [Zheng Yu](http://www.dataisland.org/), [Xinyu Xing](http://xinyuxing.org/).
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@ This is the official repository for "GPTFUZZER : [Red Teaming Large Language Mod
 - [Installation](#installation)
 - [Datasets](#datasets)
 - [Models](#models)
-- [Running] (#running)
+- [Running](#running)
 <!-- - [Experiments](#experiments) -->
 - [Release](#release)
 - [FQA](#fqa)
