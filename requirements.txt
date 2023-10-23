@@ -1,8 +1,0 @@
-fschat == 0.2.20
-transformers == 4.28.0
-openai
-tqdm
-peft == 0.3.0
-pandas
-termcolor
-openpyxl
