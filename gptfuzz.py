@@ -9,7 +9,7 @@ from gptfuzzer.fuzzer.mutator import (
     MutateRandomSinglePolicy, OpenAIMutatorCrossOver, OpenAIMutatorExpand,
     OpenAIMutatorGenerateSimilar, OpenAIMutatorRephrase, OpenAIMutatorShorten)
 from gptfuzzer.fuzzer import GPTFuzzer
-from gptfuzzer.llm import OpenAILLM, LocalVLLM
+from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 import random
 
@@ -21,7 +21,7 @@ def main(args):
 
     openai_model = OpenAILLM(args.model_path, args.api_key)
     target_model = LocalVLLM(args.target_model)
-
+    # target_model = LocalLLM(args.target_model) # we suggest using LocalVLLM for better performance, however if you are facing difficulties in installing vllm, you can use LocalLLM instead
     roberta_model = RoBERTaPredictor('hubert233/GPTFuzz', device='cuda:1')
 
     questions = [
