@@ -18,6 +18,7 @@ This is the official repository for "[GPTFUZZER: Red Teaming Large Language Mode
 - [FQA](#fqa)
 
 ## Updates
+- (2023/10/25) 🏆 🏆 We won the Frontier Breakthrough Award and Outstanding Presentation Award at Geekcon 2023!
 - (2023/10/22) Our work will be presented in the [Geekcon 2023](https://geekcon.darknavy.com/2023/china/en/index.html) conference! We will give a talk about our work and give a live attack demo with our tool. We will also include the attack results for Chinese LLMs which have not be included in our paper. We are looking forward to meeting you there!
 - (2023/10/21) We have updated our codebase to make it more readable and easier to use. We will continue to update the codebase and add more features and other implementations. We are looking forward to build a general black-box fuzzing framework for large language models. Stay tuned!
 - (2023/9/19) Our paper is on arXiv! Check it out [here](https://arxiv.org/pdf/2309.10253.pdf)!
