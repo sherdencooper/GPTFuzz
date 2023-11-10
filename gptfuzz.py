@@ -43,7 +43,7 @@ def main(args):
             OpenAIMutatorGenerateSimilar(openai_model, temperature=0.0),
             OpenAIMutatorRephrase(openai_model, temperature=0.0),
             OpenAIMutatorShorten(openai_model, temperature=0.0)],
-            concatentate=False,
+            concatentate=True,
         ),
         select_policy=MCTSExploreSelectPolicy(),
         energy=args.energy,
