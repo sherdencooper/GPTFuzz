@@ -7,6 +7,7 @@ import concurrent.futures
 from vllm import LLM as vllm
 from vllm import SamplingParams
 import google.generativeai as palm
+from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
 
 class LLM:
@@ -188,7 +189,7 @@ class LocalVLLM(LLM):
             prompt_input = conv_temp.get_prompt()
             prompt_inputs.append(prompt_input)
 
-        sampling_params = SamplingParams(temperature=0.0, max_tokens=512)
+        sampling_params = SamplingParams(temperature=temperature, max_tokens=max_tokens)
         results = self.model.generate(
             prompt_inputs, sampling_params, use_tqdm=False)
         outputs = []
@@ -200,12 +201,6 @@ class LocalVLLM(LLM):
 class BardLLM(LLM):
     def generate(self, prompt):
         return
-
-
-class ClaudeLLM(LLM):
-    def generate(self, prompt):
-        return
-
 
 class PaLM2LLM(LLM):
     def __init__(self,
@@ -248,6 +243,48 @@ class PaLM2LLM(LLM):
         results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {executor.submit(self.generate, prompt, temperature, n,
+                                       max_trials, failure_sleep_time): prompt for prompt in prompts}
+            for future in concurrent.futures.as_completed(futures):
+                results.extend(future.result())
+        return results
+
+class ClaudeLLM(LLM):
+    def __init__(self,
+                 model_path='claude-instant-1.2',
+                 api_key=None
+                ):
+        super().__init__()
+        
+        if len(api_key) != 108:
+            raise ValueError('invalid Claude API key')
+        
+        self.model_path = model_path
+        self.api_key = api_key
+        self.anthropic = Anthropic(
+            api_key=self.api_key
+        )
+
+    def generate(self, prompt, max_tokens=512, max_trials=1, failure_sleep_time=1):
+        
+        for _ in range(max_trials):
+            try:
+                completion = self.anthropic.completions.create(
+                    model=self.model_path,
+                    max_tokens_to_sample=300,
+                    prompt=f"{HUMAN_PROMPT} {prompt}{AI_PROMPT}",
+                )
+                return [completion.completion]
+            except Exception as e:
+                logging.warning(
+                    f"Claude API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
+                time.sleep(failure_sleep_time)
+
+        return [" "]
+    
+    def generate_batch(self, prompts, max_tokens=512, max_trials=1, failure_sleep_time=1):
+        results = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {executor.submit(self.generate, prompt, max_tokens,
                                        max_trials, failure_sleep_time): prompt for prompt in prompts}
             for future in concurrent.futures.as_completed(futures):
                 results.extend(future.result())

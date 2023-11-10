@@ -1,1 +1,1 @@
-from .llm import LLM, LocalLLM, OpenAILLM, LocalVLLM, PaLM2LLM
+from .llm import LLM, LocalLLM, OpenAILLM, LocalVLLM, PaLM2LLM, ClaudeLLM

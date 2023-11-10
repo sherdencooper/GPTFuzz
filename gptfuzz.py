@@ -9,7 +9,7 @@ from gptfuzzer.fuzzer.mutator import (
     MutateRandomSinglePolicy, OpenAIMutatorCrossOver, OpenAIMutatorExpand,
     OpenAIMutatorGenerateSimilar, OpenAIMutatorRephrase, OpenAIMutatorShorten)
 from gptfuzzer.fuzzer import GPTFuzzer
-from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM, PaLM2LLM
+from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM, PaLM2LLM, ClaudeLLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 import random
 
@@ -20,8 +20,9 @@ def main(args):
     initial_seed = pd.read_csv(args.seed_path)['text'].tolist()
 
     openai_model = OpenAILLM(args.model_path, args.openai_key)
-    target_model = PaLM2LLM(args.target_model, args.palm_key)
-    # target_model = LocalVLLM(args.target_model)
+    # target_model = PaLM2LLM(args.target_model, args.palm_key)
+    # target_model = ClaudeLLM(args.target_model, args.claude_key)
+    target_model = LocalVLLM(args.target_model)
     # target_model = LocalLLM(args.target_model) # we suggest using LocalVLLM for better performance, however if you are facing difficulties in installing vllm, you can use LocalLLM instead
     roberta_model = RoBERTaPredictor('hubert233/GPTFuzz', device='cuda:1')
 
@@ -56,11 +57,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fuzzing parameters')
-    parser.add_argument('--openai_key', type=str, default='', help='API Key')
+    parser.add_argument('--openai_key', type=str, default='', help='OpenAI API Key')
+    parser.add_argument('--claude_key', type=str, default='', help='Claude API Key')
     parser.add_argument('--palm_key', type=str, default='', help='PaLM2 api key')
     parser.add_argument('--model_path', type=str, default='gpt-3.5-turbo',
                         help='mutate model path')
-    parser.add_argument('--target_model', type=str, default='models/chat-bison-001',
+    parser.add_argument('--target_model', type=str, default='meta-llama/Llama-2-7b-chat-hf',
                         help='The target model, openai model or open-sourced LLMs')
     parser.add_argument('--max_query', type=int, default=1000,
                         help='The maximum number of queries')
