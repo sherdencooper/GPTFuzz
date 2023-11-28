@@ -31,7 +31,6 @@ class OpenAIMutatorBase(Mutator):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
@@ -41,12 +40,11 @@ class OpenAIMutatorBase(Mutator):
 
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.request_timeout = request_timeout
         self.max_trials = max_trials
         self.failure_sleep_time = failure_sleep_time
 
     def mutate_single(self, seed) -> 'list[str]':
-        return self.model.generate(seed, self.temperature, self.max_tokens, self.n, self.request_timeout, self.max_trials, self.failure_sleep_time)
+        return self.model.generate(seed, self.temperature, self.max_tokens, self.n, self.max_trials, self.failure_sleep_time)
 
 
 class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
@@ -54,12 +52,10 @@ class OpenAIMutatorGenerateSimilar(OpenAIMutatorBase):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(model, temperature, max_tokens,
-                         request_timeout, max_trials, failure_sleep_time, fuzzer)
+        super().__init__(model, temperature, max_tokens, max_trials, failure_sleep_time, fuzzer)
 
     def generate_similar(self, seed: str, _: 'list[PromptNode]'):
         return ("I need you to generate one template. I will give you one template example. "
@@ -82,12 +78,10 @@ class OpenAIMutatorCrossOver(OpenAIMutatorBase):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(model, temperature, max_tokens,
-                         request_timeout, max_trials, failure_sleep_time, fuzzer)
+        super().__init__(model, temperature, max_tokens, max_trials, failure_sleep_time, fuzzer)
 
     def cross_over(self, seed: str, prompt_nodes: 'list[PromptNode]'):
         return (
@@ -111,12 +105,10 @@ class OpenAIMutatorExpand(OpenAIMutatorBase):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(model, temperature, max_tokens,
-                         request_timeout, max_trials, failure_sleep_time, fuzzer)
+        super().__init__(model, temperature, max_tokens, max_trials, failure_sleep_time, fuzzer)
 
     def expand(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -139,12 +131,10 @@ class OpenAIMutatorShorten(OpenAIMutatorBase):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(model, temperature, max_tokens,
-                         request_timeout, max_trials, failure_sleep_time, fuzzer)
+        super().__init__(model, temperature, max_tokens, max_trials, failure_sleep_time, fuzzer)
 
     def shorten(self, seed: str, _: 'list[PromptNode]'):
         return (
@@ -167,12 +157,10 @@ class OpenAIMutatorRephrase(OpenAIMutatorBase):
                  model: 'OpenAILLM',
                  temperature: int = 1,
                  max_tokens: int = 512,
-                 request_timeout: int = 20,
                  max_trials: int = 100,
                  failure_sleep_time: int = 5,
                  fuzzer: 'GPTFuzzer' = None):
-        super().__init__(model, temperature, max_tokens,
-                         request_timeout, max_trials, failure_sleep_time, fuzzer)
+        super().__init__(model, temperature, max_tokens, max_trials, failure_sleep_time, fuzzer)
 
     def rephrase(self, seed: str, _: 'list[PromptNode]'):
         return (

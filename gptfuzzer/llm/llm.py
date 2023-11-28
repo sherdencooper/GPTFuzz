@@ -1,5 +1,5 @@
 import torch
-import openai
+from openai import OpenAI
 from fastchat.model import load_model, get_conversation_template
 import logging
 import time
@@ -303,14 +303,14 @@ class OpenAILLM(LLM):
         if model_path not in ['gpt-3.5-turbo', 'gpt-4']:
             raise ValueError(
                 'OpenAI model path should be gpt-3.5-turbo or gpt-4')
-        openai.api_key = api_key
+        self.client = OpenAI(api_key = api_key)
         self.model_path = model_path
         self.system_message = system_message if system_message is not None else "You are a helpful assistant."
 
-    def generate(self, prompt, temperature=0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
+    def generate(self, prompt, temperature=0, max_tokens=512, n=1, max_trials=10, failure_sleep_time=5):
         for _ in range(max_trials):
             try:
-                results = openai.ChatCompletion.create(
+                results = self.client.chat.completions.create(
                     model=self.model_path,
                     messages=[
                         {"role": "system", "content": self.system_message},
@@ -319,9 +319,8 @@ class OpenAILLM(LLM):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     n=n,
-                    request_timeout=request_timeout
                 )
-                return [results['choices'][i]['message']['content'] for i in range(n)]
+                return [results.choices[i].message.content for i in range(n)]
             except Exception as e:
                 logging.warning(
                     f"OpenAI API call failed due to {e}. Retrying {_+1} / {max_trials} times...")
@@ -329,11 +328,11 @@ class OpenAILLM(LLM):
 
         return [" " for _ in range(n)]
 
-    def generate_batch(self, prompts, temperature=0, max_tokens=512, n=1, request_timeout=20, max_trials=10, failure_sleep_time=5):
+    def generate_batch(self, prompts, temperature=0, max_tokens=512, n=1, max_trials=10, failure_sleep_time=5):
         results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {executor.submit(self.generate, prompt, temperature, max_tokens, n,
-                                       request_timeout, max_trials, failure_sleep_time): prompt for prompt in prompts}
+                                       max_trials, failure_sleep_time): prompt for prompt in prompts}
             for future in concurrent.futures.as_completed(futures):
                 results.extend(future.result())
         return results
