@@ -12,8 +12,11 @@ from gptfuzzer.fuzzer import GPTFuzzer
 from gptfuzzer.llm import OpenAILLM, LocalVLLM, LocalLLM, PaLM2LLM, ClaudeLLM
 from gptfuzzer.utils.predict import RoBERTaPredictor
 import random
-
 random.seed(100)
+import logging
+httpx_logger: logging.Logger = logging.getLogger("httpx")
+# disable httpx logging
+httpx_logger.setLevel(logging.WARNING)
 
 
 def main(args):
