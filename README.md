@@ -17,6 +17,7 @@ This is the official repository for "[GPTFUZZER: Red Teaming Large Language Mode
 - [FQA](#fqa)
 
 ## Updates
+- (2024/8/13) This paper was accepted by Usenix Security. See the [proceeding paper](https://www.usenix.org/conference/usenixsecurity24/presentation/yu-jiahao)
 - (2023/10/25) 🏆 🏆 We won the Frontier Breakthrough Award and Outstanding Presentation Award at Geekcon 2023!
 - (2023/10/22) Our work will be presented in the [Geekcon 2023](https://geekcon.darknavy.com/2023/china/en/index.html) conference! We will give a talk about our work and give a live attack demo with our tool. We will also include the attack results for Chinese LLMs which have not be included in our paper. We are looking forward to meeting you there!
 - (2023/10/21) We have updated our codebase to make it more readable and easier to use. We will continue to update the codebase and add more features and other implementations. We are looking forward to build a general black-box fuzzing framework for large language models. Stay tuned!
@@ -63,3 +64,23 @@ Due to ethical concern, we decided not to release the adversarial templates we f
 3. How could I implement my own mutator/seed selector?
     - You can implement your own mutator/seed selector by inheriting the class. You can refer to `mutator.py` and `selection.py` for examples.
     Also, as we claimed, we would like to work on a general black-box fuzzing framework for large language models. If you have some ideas or suggestions or you find other papers that are related to this topic, please let us know or leave the comment in the issue. We are happy to implement them and make this framework more powerful.
+
+## Citation
+If you find this useful in your research, please consider citing:
+
+```
+@inproceedings{yu2024llm,
+  title={$\{$LLM-Fuzzer$\}$: Scaling Assessment of Large Language Model Jailbreaks},
+  author={Yu, Jiahao and Lin, Xingwei and Yu, Zheng and Xing, Xinyu},
+  booktitle={33rd USENIX Security Symposium (USENIX Security 24)},
+  pages={4657--4674},
+  year={2024}
+}
+
+@article{yu2023gptfuzzer,
+  title={Gptfuzzer: Red teaming large language models with auto-generated jailbreak prompts},
+  author={Yu, Jiahao and Lin, Xingwei and Yu, Zheng and Xing, Xinyu},
+  journal={arXiv preprint arXiv:2309.10253},
+  year={2023}
+}
+```
