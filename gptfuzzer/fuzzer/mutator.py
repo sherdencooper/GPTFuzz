@@ -214,6 +214,6 @@ class MutateRandomSinglePolicy(MutatePolicy):
         mutator = random.choice(self.mutators)
         results = mutator.mutate_single(prompt_node.prompt)
         if self.concatentate:
-            results = [result + prompt_node.prompt  for result in results]
+            results = [result or '' + prompt_node.prompt for result in results]
 
         return [PromptNode(self.fuzzer, result, parent=prompt_node, mutator=mutator) for result in results]
