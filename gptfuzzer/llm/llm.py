@@ -10,6 +10,8 @@ from google import genai  # New Google Gen AI SDK (google-genai package)
 from google.genai import types
 from anthropic import Anthropic
 
+from gptfuzzer.orcarouter import OrcaRouterLLM as _OrcaRouterLLM
+
 
 class LLM:
     def __init__(self):
@@ -472,3 +474,13 @@ class OpenAILLM(LLM):
             for future in concurrent.futures.as_completed(futures):
                 results.extend(future.result())
         return results
+
+
+class OrcaRouterLLM(_OrcaRouterLLM, LLM):
+    """OrcaRouter Cyber Inference provider for mutate and target models.
+
+    The implementation lives in :mod:`gptfuzzer.orcarouter` so that the
+    credential, catalog and transport layers stay importable without the
+    optional GPU dependencies.  This subclass only adds the project's ``LLM``
+    base class for type compatibility.
+    """

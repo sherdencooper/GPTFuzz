@@ -46,6 +46,77 @@ tokenizer = RobertaTokenizer.from_pretrained(model_path)
 During our experiments, we found that our trained model can also be transferred to other questions. However, we also found that it does not work well on some questions and other languages. We will add more predictor model soon.
 
 ## Running
+
+### OrcaRouter Cyber Inference provider
+
+GPTFuzzer ships a first-class **OrcaRouter Cyber Inference** provider for teams
+running authorized, scoped red-team work. [OrcaRouter](https://www.orcarouter.ai)
+is an OpenAI-compatible AI gateway that routes many providers behind one
+endpoint, and it is built for security teams: cyber models for your red team,
+gateway controls for your blue team. See the
+[cyber provider page](https://www.orcarouter.ai/cyber) and the
+[cyber model catalog](https://www.orcarouter.ai/models?tier=cyber).
+
+Provider details:
+
+| | |
+| --- | --- |
+| Provider name | `OrcaRouter Cyber Inference` |
+| Inference base URL | `https://api.orcarouter.ai/v1` |
+| Authentication | API key (`sk-orca-…`) |
+| Key environment variable | `ORCAROUTER_API_KEY` |
+| CLI flags | `--provider orcarouter --orcarouter_key … --orcarouter_model …` |
+| Key management | <https://www.orcarouter.ai/console/api-keys> |
+
+A key belongs to your own OrcaRouter account: it is billed to that account, is
+listed in the console, and can be revoked there at any time. The provider uses
+the key only in the `Authorization: Bearer` header; it is never written to logs.
+
+Recommended models, in order:
+
+1. `orcarouter/auto` — the default. Automatic routing across the models your
+   key is allowed to call.
+2. `orca/orcacyber-ultra-1.0` and `orca/orcacyber-zero-1.5` (also
+   `orca/orcacyber-zero-1.0`) — dedicated cyber models for security teams whose
+   workspace has completed business verification (security code scanning,
+   multi-step reasoning over large codebases, and the OrcaCyber harness).
+3. `orcarouter/fusion` — general-purpose fallback.
+
+The model list is never a hand-written sample: when a provider is selected,
+GPTFuzzer reads the live catalog from `GET https://api.orcarouter.ai/v1/models`
+(filtered to `chat` capability and OpenAI-/Anthropic-/Gemini-compatible endpoint
+types) and rejects a model that is not in it. A key only sees the models its
+workspace has enabled; manage that access in the console. If the catalog is
+unavailable, a small verified seed (`openai/gpt-5.5`,
+`anthropic/claude-opus-4.8`, `google/gemini-3.5-flash`,
+`deepseek/deepseek-v4-pro`, `orcarouter/auto`) is used and clearly marked as
+degraded.
+
+List the chat-capable models your key can actually call:
+
+```bash
+export ORCAROUTER_API_KEY=sk-orca-...
+python gptfuzz.py --list-orcarouter-models
+```
+
+Use OrcaRouter for the mutation model, the target model, or both:
+
+```bash
+python gptfuzz.py \
+  --provider orcarouter \
+  --orcarouter_model orcarouter/auto \
+  --target_provider orcarouter \
+  --target_model orcarouter/fusion
+```
+
+An explicit API base can be supplied for self-hosted deployments through
+`ORCA_API_BASE_URL` (used verbatim) or the shared `ORCA_BASE_URL` origin. Remote
+origins must use HTTPS; HTTP is accepted only for loopback addresses.
+
+This repository has no account-login/OAuth seam, so the provider intentionally
+implements API-key authentication only instead of introducing a browser callback
+server that the rest of the tool does not need.
+
 We provide a python [example](./gptfuzz.py) to show the minimal code to run the fuzzing experiments. This example uses ChatGPT as mutate model to attack Llama-2-7B-chat with official system prompt(we did the monkey patch for Fastchat template since Fastchat deleted the official system prompt in recent update), and you should be able to get the identical results in [example folder](./example/) (we set the random seed for reproducibility and temperature=0).
 
 

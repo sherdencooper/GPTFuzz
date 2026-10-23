@@ -1,0 +1,7 @@
+# Development dependencies for the OrcaRouter Cyber Inference provider tests.
+#
+# The provider (gptfuzzer/orcarouter.py) and its test suite use only the Python
+# standard library, so there are no third-party packages to install here.
+# Runtime dependencies for the full fuzzing workflow (torch, fastchat, vllm,
+# openai, anthropic, google-genai, pandas, ...) are installed through
+# install.ipynb, which needs a GPU-capable environment.
